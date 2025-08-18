@@ -44,20 +44,20 @@ CREATE TABLE Supplier (
 );
 
 CREATE TABLE Category (
-    catagory_id INTEGER PRIMARY KEY,
-    catagory_name TEXT NOT NULL
+    category_id INTEGER PRIMARY KEY,
+    category_name TEXT NOT NULL
 );
 
 CREATE TABLE BusinessCategory (
-    business_catagory_id INTEGER PRIMARY KEY,
+    business_category_id INTEGER PRIMARY KEY,
     business_id INTEGER,
-    catagory_id INTEGER,
+    category_id INTEGER,
     rated_employee_username TEXT,
     review TEXT,
     rating_score REAL,
     supplier_contact TEXT,
     FOREIGN KEY (business_id) REFERENCES Business(business_id),
-    FOREIGN KEY (catagory_id) REFERENCES Category(catagory_id),
+    FOREIGN KEY (category_id) REFERENCES Category(category_id),
     FOREIGN KEY (rated_employee_username) REFERENCES Employee(username),
     FOREIGN KEY (supplier_contact) REFERENCES Supplier(username)
 );
@@ -76,13 +76,13 @@ CREATE TABLE Project (
 
 CREATE TABLE ProjectTask (
     project_task_id INTEGER PRIMARY KEY,
-    catagory_id INTEGER,
+    category_id INTEGER,
     project_id INTEGER,
     description TEXT,
-    sub_catagory TEXT,
+    sub_category TEXT,
     unit TEXT,
     quantity REAL,
-    FOREIGN KEY (catagory_id) REFERENCES Category(catagory_id),
+    FOREIGN KEY (category_id) REFERENCES Category(category_id),
     FOREIGN KEY (project_id) REFERENCES Project(project_id)
 );
 
@@ -90,12 +90,12 @@ CREATE TABLE TotalOffer (
     total_offer_id INTEGER PRIMARY KEY,
     supplier_username TEXT,
     singed_name TEXT,
-    singed_date TEXT,
+    signed_date TEXT,
     project_id INTEGER,
-    business_catagory_id INTEGER,
+    business_category_id INTEGER,
     FOREIGN KEY (supplier_username) REFERENCES Supplier(username),
     FOREIGN KEY (project_id) REFERENCES Project(project_id),
-    FOREIGN KEY (business_catagory_id) REFERENCES BusinessCategory(business_catagory_id)
+    FOREIGN KEY (business_category_id) REFERENCES BusinessCategory(business_category_id)
 );
 
 CREATE TABLE TaskOffer (
@@ -132,9 +132,9 @@ CREATE TABLE Log (
 CREATE TABLE BusinessCategorySelection (
     selection_id INTEGER PRIMARY KEY,
     project_id INTEGER,
-    business_catagory_id INTEGER,
+    business_category_id INTEGER,
     FOREIGN KEY (project_id) REFERENCES Project(project_id),
-    FOREIGN KEY (business_catagory_id) REFERENCES BusinessCategory(business_catagory_id)
+    FOREIGN KEY (business_category_id) REFERENCES BusinessCategory(business_category_id)
 );
 
 """)

@@ -28,7 +28,7 @@ def create_app():
     @app.get("/api/categories")
     def list_categories():
         return jsonify(
-            query_all("SELECT catagory_id, catagory_name FROM Category ORDER BY catagory_name")
+            query_all("SELECT category_id, category_name FROM Category ORDER BY category_name")
         )
 
 

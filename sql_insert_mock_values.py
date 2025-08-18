@@ -36,13 +36,13 @@ INSERT INTO Supplier (username, business_id, supplier_id) VALUES
 ('sup1', 1, '510111111'),
 ('sup2', 2, '520222222');
 
-INSERT INTO Category (catagory_id, catagory_name) VALUES
+INSERT INTO Category (category_id, category_name) VALUES
 (1, 'עבודות שלד'),
 (2, 'עבודות חשמל'),
 (3, 'עבודות צבע'),
 (4, 'עבודות אינסטלציה');
 
-INSERT INTO BusinessCategory (business_catagory_id, business_id, catagory_id, rated_employee_username, review, rating_score, supplier_contact) VALUES
+INSERT INTO BusinessCategory (business_category_id, business_id, category_id, rated_employee_username, review, rating_score, supplier_contact) VALUES
 (1, 1, 1, 'admin1', 'עבודה מצוינת ואמינה', 4.8, 'sup1'),
 (2, 2, 2, 'emp1', 'שירות מהיר ואיכותי', 4.5, 'sup2'),
 (3, 3, 3, 'admin1', 'צבע איכותי, עמיד לאורך זמן', 4.7, NULL);
