@@ -89,7 +89,7 @@ CREATE TABLE ProjectTask (
 CREATE TABLE TotalOffer (
     total_offer_id INTEGER PRIMARY KEY,
     supplier_username TEXT,
-    singed_name TEXT,
+    signed_date TEXT,
     signed_date TEXT,
     project_id INTEGER,
     business_category_id INTEGER,
