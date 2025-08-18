@@ -90,7 +90,6 @@ CREATE TABLE TotalOffer (
     total_offer_id INTEGER PRIMARY KEY,
     supplier_username TEXT,
     signed_date TEXT,
-    signed_date TEXT,
     project_id INTEGER,
     business_category_id INTEGER,
     FOREIGN KEY (supplier_username) REFERENCES Supplier(username),
