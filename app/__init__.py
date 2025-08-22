@@ -1,4 +1,7 @@
 from flask import Flask
+
+from .services.business_service import BusinessService
+from .services.category_service import CategoryService
 from .teardown import register_teardown
 from .blueprints.businesses import bp as businesses_bp
 from .blueprints.categories import bp as categories_bp
