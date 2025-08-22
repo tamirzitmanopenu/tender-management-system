@@ -1,6 +1,6 @@
 from datetime import datetime, UTC
 
-from db.db import execute
+from db.db import get_db
 from flask import request, jsonify
 
 
@@ -15,7 +15,7 @@ def actor_from_headers():
 def log_event(message, username=None, level="INFO"):
     if username is None:
         username = actor_from_headers()
-    execute(
+    get_db().execute(
         "INSERT INTO Log (username, message, level, date) VALUES (?, ?, ?, ?)",
         (username, message, level, now_iso()),
     )
