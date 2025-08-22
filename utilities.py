@@ -8,7 +8,13 @@ def now_iso():
     return datetime.now(UTC).isoformat(timespec="seconds")
 
 
-def log_event(username, message, level="INFO"):
+def actor_from_headers():
+    return request.headers.get("X-User", "system")
+
+
+def log_event(message, username=None, level="INFO"):
+    if username is None:
+        username = actor_from_headers()
     execute(
         "INSERT INTO Log (username, message, level, date) VALUES (?, ?, ?, ?)",
         (username, message, level, now_iso()),
