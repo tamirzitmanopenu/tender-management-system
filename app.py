@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from db import get_db, close_db, init_db, query_one, query_all, execute
+from db.db import close_db, query_one, query_all, execute
 from utilities import require_json, log_event
 
 
@@ -14,18 +14,18 @@ def create_app():
     # --- Businesses ---
     @app.post("/api/businesses")
     def add_business():
-        data, err = require_json("company_name")
+        data, err = require_json("company_name", "business_id")
         if err: return err
         row = query_one("SELECT 1 FROM Business WHERE business_id = ?", (data["business_id"],))
         if row:
-            return {"error": "business_id already exists"}, 409
+            return {"error": "business_id already exists", "business_id": data["business_id"]}, 409
 
         execute(
             "INSERT INTO Business (business_id, company_name) VALUES (?, ?)",
             (data["business_id"], data["company_name"]),
         )
         log_event(request.headers.get("X-User", "system"),
-                  f"A new business was added, business_id: {data["business_id"]}")
+                  f"A new business was added, {data["company_name"]} with business_id: {data["business_id"]}")
         return jsonify({"business_id": data["business_id"]}), 201
 
     @app.get("/api/businesses")
@@ -63,7 +63,7 @@ def create_app():
         if "category_id" in data and data["category_id"] is not None:
             row = query_one("SELECT 1 FROM Category WHERE category_id = ?", (data["category_id"],))
             if row:
-                return {"error": "category_id already exists"}, 409
+                return {"error": "category_id already exists", "category_id": data["category_id"]}, 409
             execute(
                 "INSERT INTO Category (category_id, category_name) VALUES (?, ?)",
                 (data["category_id"], data["category_name"]),
@@ -71,16 +71,13 @@ def create_app():
             new_id = data["category_id"]
         else:
             # Let the DB autogenerate the primary key
-            execute(
+            new_id = execute(
                 "INSERT INTO Category (category_name) VALUES (?)",
                 (data["category_name"],),
             )
-            # Works for SQLite; adjust if using a different DB
-            row = query_one("SELECT last_insert_rowid() AS id")
-            new_id = row["id"] if row else None
 
         log_event(request.headers.get("X-User", "system"),
-                  f"A new category was added, category_id: {new_id}")
+                  f"A new category was added, {data["category_name"]} with category_id: {new_id}")
 
         return jsonify({"category_id": new_id}), 201
 

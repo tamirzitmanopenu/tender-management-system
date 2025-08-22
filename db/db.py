@@ -2,10 +2,12 @@
 import sqlite3
 from flask import g
 
-DB_PATH = 'tender-management-system.db'
+DB_PATH = r'db/tender-management-system.db'
+
 
 def dict_factory(cursor, row):
     return {col[0]: row[idx] for idx, col in enumerate(cursor.description)}
+
 
 def get_db():
     if "db" not in g:
@@ -15,16 +17,12 @@ def get_db():
         g.db = conn
     return g.db
 
+
 def close_db(e=None):
     db = g.pop("db", None)
     if db is not None:
         db.close()
 
-def init_db():
-    db = get_db()
-    with open("schema.sql", "r", encoding="utf-8") as f:
-        db.executescript(f.read())
-    db.commit()
 
 def query_one(sql, params=()):
     db = get_db()
@@ -33,12 +31,14 @@ def query_one(sql, params=()):
     cur.close()
     return row
 
+
 def query_all(sql, params=()):
     db = get_db()
     cur = db.execute(sql, params)
     rows = cur.fetchall()
     cur.close()
     return rows
+
 
 def execute(sql, params=()):
     db = get_db()

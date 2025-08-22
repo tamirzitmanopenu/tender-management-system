@@ -1,6 +1,6 @@
 from datetime import datetime, UTC
 
-from db import execute
+from db.db import execute
 from flask import request, jsonify
 
 
