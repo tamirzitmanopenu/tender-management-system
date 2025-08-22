@@ -71,13 +71,10 @@ def create_app():
             new_id = data["category_id"]
         else:
             # Let the DB autogenerate the primary key
-            new_id = execute(
-                "INSERT INTO Category (category_name) VALUES (?)",
-                (data["category_name"],),
-            )
+            new_id = execute("INSERT INTO Category (category_name) VALUES (?)", name)
 
         log_event(request.headers.get("X-User", "system"),
-                  f"A new category was added, {data["category_name"]} with category_id: {new_id}")
+                  f"A new category was added, {name} with category_id: {new_id}")
 
         return jsonify({"category_id": new_id}), 201
 
