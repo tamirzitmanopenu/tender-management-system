@@ -1,7 +1,7 @@
 import sqlite3
 
 # יצירת חיבור למסד הנתונים
-conn = sqlite3.connect("tender-management-system.db")
+conn = sqlite3.connect(r'tender-management-system.db')
 cursor = conn.cursor()
 
 # יצירת טבלאות

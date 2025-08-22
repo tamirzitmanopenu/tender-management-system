@@ -25,7 +25,7 @@ def create_app():
             (data["business_id"], data["company_name"]),
         )
         log_event(request.headers.get("X-User", "system"),
-                  f"A new business was added, {data["company_name"]} with business_id: {data["business_id"]}")
+                  f"A new business was added, {data['company_name']} with business_id: {data["business_id"]}")
         return jsonify({"business_id": data["business_id"]}), 201
 
     @app.get("/api/businesses")
@@ -71,7 +71,7 @@ def create_app():
             new_id = data["category_id"]
         else:
             # Let the DB autogenerate the primary key
-            new_id = execute("INSERT INTO Category (category_name) VALUES (?)", name)
+            new_id = execute("INSERT INTO Category (category_name) VALUES (?)", (name,))
 
         log_event(request.headers.get("X-User", "system"),
                   f"A new category was added, {name} with category_id: {new_id}")

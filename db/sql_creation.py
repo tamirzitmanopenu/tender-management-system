@@ -1,7 +1,8 @@
 import sqlite3
 from pathlib import Path
 
-db_file = "tender-management-system.db"
+
+db_file = r'tender-management-system.db'
 schema_file = "schema.sql"
 
 conn = sqlite3.connect(db_file)
