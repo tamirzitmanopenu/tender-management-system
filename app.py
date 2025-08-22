@@ -48,7 +48,7 @@ def create_app():
             return err
 
         # Normalize the name: trim whitespace
-        name = (data.get("category_name") or "").strip()
+        name = data["category_name"].strip()
         if not name:
             return {"error": "category_name cannot be empty"}, 400
 
