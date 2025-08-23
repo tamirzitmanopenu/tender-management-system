@@ -1,4 +1,3 @@
-# db.py
 import sqlite3
 from flask import g
 
@@ -14,48 +13,61 @@ class Database:
 
     def __init__(self, path: str = DB_PATH):
         self.path = path
-        self.conn: sqlite3.Connection | None = None
 
-    def connect(self) -> sqlite3.Connection:
-        if self.conn is None:
+    def _get_conn(self) -> sqlite3.Connection:
+        # one connection per request/thread
+        if "db_conn" not in g:
             conn = sqlite3.connect(self.path)
             conn.row_factory = dict_factory
             conn.execute("PRAGMA foreign_keys = ON;")
-            self.conn = conn
-        return self.conn
-
-    def close(self):
-        if self.conn is not None:
-            self.conn.close()
-            self.conn = None
+            g.db_conn = conn
+        return g.db_conn
 
     def query_one(self, sql, params=()):
-        cur = self.connect().execute(sql, params)
+        cur = self._get_conn().execute(sql, params)
         row = cur.fetchone()
         cur.close()
         return row
 
     def query_all(self, sql, params=()):
-        cur = self.connect().execute(sql, params)
+        cur = self._get_conn().execute(sql, params)
         rows = cur.fetchall()
         cur.close()
         return rows
 
     def execute(self, sql, params=()):
-        cur = self.connect().execute(sql, params)
-        self.connect().commit()
+        conn = self._get_conn()
+        cur = conn.execute(sql, params)
+        conn.commit()
         last_id = cur.lastrowid
         cur.close()
         return last_id
 
+    def get_table_record(self, table: str, filters: dict | None = None,
+                         normalized_fields: list[str] | None = None, query_one_only: bool = False):
+        sql = f"SELECT * FROM {table}"
+        params = []
+
+        if filters:
+            conditions = []
+            for field, value in filters.items():
+                if normalized_fields and field in normalized_fields:
+                    conditions.append(f"LOWER(TRIM({field})) = LOWER(TRIM(?))")
+                else:
+                    conditions.append(f"{field} = ?")
+                params.append(value)
+
+            sql += " WHERE " + " AND ".join(conditions)
+
+        return self.query_one(sql, tuple(params)) if query_one_only else self.query_all(sql, tuple(params))
+
 
 def get_db() -> Database:
-    if "db" not in g:
-        g.db = Database()
-    return g.db
+    # return a lightweight repo; the actual connection lives in g
+    return Database()
 
 
 def close_db(e=None):
-    db: Database | None = g.pop("db", None)
-    if db is not None:
-        db.close()
+    conn = g.pop("db_conn", None)
+    if conn is not None:
+        conn.close()

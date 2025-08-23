@@ -1,7 +1,5 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, current_app
 
-from app.services.business_service import BusinessService
-from db.db import get_db
 from utilities import require_json, log_event
 
 bp = Blueprint("businesses", __name__)
@@ -13,7 +11,7 @@ def add_business():
     if err:
         return err
 
-    service = BusinessService(get_db())
+    service = current_app.config["BusinessService"]
     if service.business_exists(data["business_id"]):
         return {"error": "business_id already exists", "business_id": data["business_id"]}, 409
 
@@ -27,6 +25,6 @@ def add_business():
 
 @bp.get("/businesses")
 def list_businesses():
-    service = BusinessService(get_db())
+    service = current_app.config["BusinessService"]
     rows = service.list_all_businesses()
     return jsonify(rows)

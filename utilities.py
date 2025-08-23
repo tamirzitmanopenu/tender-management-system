@@ -1,7 +1,8 @@
 from datetime import datetime, UTC
 
-from db.db import get_db
 from flask import request, jsonify
+
+from db.db import get_db
 
 
 def now_iso():
