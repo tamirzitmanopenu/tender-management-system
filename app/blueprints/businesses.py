@@ -1,7 +1,5 @@
 from flask import Blueprint, jsonify, current_app
 
-from app.services.business_service import BusinessService
-from db.db import get_db
 from utilities import require_json, log_event
 
 bp = Blueprint("businesses", __name__)

@@ -1,10 +1,9 @@
-from db.db import get_db
 from utilities import now_iso
 
 
 class ProjectService:
-    def __init__(self, db=None):
-        self.db = db or get_db()
+    def __init__(self, db):
+        self.db = db
 
     def insert_project(self, name: str, created_by: str, deadline_date: str) -> int:
         created_at = now_iso()

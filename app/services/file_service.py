@@ -5,14 +5,13 @@ from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 from flask import current_app
 
-from app.services.skn_converter import parse_skn_file
-from db.db import get_db
+from app.services.skn_converter import get_project_tasks
 from utilities import now_iso
 
 
 class FileService:
-    def __init__(self, db=None):
-        self.db = db or get_db()
+    def __init__(self, db):
+        self.db = db
 
     @staticmethod
     def save_file(file: FileStorage, project_id: str) -> str:

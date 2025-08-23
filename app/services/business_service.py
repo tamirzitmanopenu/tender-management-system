@@ -1,9 +1,6 @@
-from db.db import get_db
-
-
 class BusinessService:
-    def __init__(self, db=None):
-        self.db = db or get_db()
+    def __init__(self, db):
+        self.db = db
 
     def business_exists(self, business_id: str) -> bool:
         return (
