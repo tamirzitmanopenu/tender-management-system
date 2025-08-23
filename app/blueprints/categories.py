@@ -1,8 +1,6 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, current_app
 
 from utilities import require_json, log_event
-from app.services.category_service import CategoryService
-from db.db import get_db
 
 bp = Blueprint("categories", __name__)
 
@@ -13,7 +11,7 @@ def add_category():
     if err:
         return err
 
-    service = CategoryService(get_db())
+    service = current_app.config["CategoryService"]
     name = service.normalized(data["category_name"])
     if not name:
         return {"error": "category_name cannot be empty"}, 400
@@ -36,5 +34,5 @@ def add_category():
 
 @bp.get("/categories")
 def get_categories():
-    service = CategoryService(get_db())
+    service = current_app.config["CategoryService"]
     return jsonify(service.list_categories())
