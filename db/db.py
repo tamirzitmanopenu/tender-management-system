@@ -70,5 +70,4 @@ def get_db() -> Database:
 def close_db(e=None):
     conn = g.pop("db_conn", None)
     if conn is not None:
-        print("Closing DB connection")  # debug
         conn.close()

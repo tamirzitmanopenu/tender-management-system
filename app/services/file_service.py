@@ -35,19 +35,28 @@ class FileService:
         )
 
     def get_file_record(self, file_id: str):
-        return self.db.query_one("Select * From File Where file_id = (?)", (file_id,))
+        return self.db.get_table_record(table='File', filters={'file_id': file_id}, query_one_only=True)
 
     @staticmethod
-    def process_skn_to_db(file_path: str, project_id: str):
-        # project_service = current_app.config["ProjectService"]
-        # category_service = current_app.config["CategoryService"]
-        #
-        # project_tasks = parse_skn_file(file_path)
-        # project_categories
-        # exist_categories = category_service.list_categories()
-        #
-        #
-        # for task in project_tasks:
-        #     project_service.insert_project_task(category_id=)  # foreach
-        # # insert_category() # if needed
-        pass
+    def process_skn_to_db(skn_file_path: str, project_id: str) -> dict:
+        result = {'new_categories': 0, 'new_project_tasks': 0}
+        project_service = current_app.config["ProjectService"]
+        category_service = current_app.config["CategoryService"]
+
+        project_tasks = get_project_tasks(skn_file_path=skn_file_path)
+        for task in project_tasks:
+            category_id = category_service.category_by_normalized(name=task.category_name)
+            if category_id is None:
+                category_id = category_service.insert_category(task.category_name)
+                result['new_categories'] += 1
+                print(f"category was added {category_id}")
+            project_task_id = project_service.insert_project_task(project_id=project_id,
+                                                                  category_id=category_id,
+                                                                  description=task.desc,
+                                                                  sub_category=task.sub_category_name,
+                                                                  unit=task.unit,
+                                                                  quantity=float(task.quantity)
+                                                                  )
+            result['new_project_tasks'] += 1
+            print(f"project_task_id was added {project_task_id}")
+        return result

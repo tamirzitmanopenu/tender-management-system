@@ -18,7 +18,10 @@ class ProjectService:
     def list_all_projects(self, ):
         return self.db.query_all("SELECT * FROM Project")
 
-    def insert_project_task(self, category_id: str, project_id: str,
+    def get_project_record(self, project_id: str):
+        return self.db.get_table_record(table='File', filters={'project_id': project_id}, query_one_only=True)
+
+    def insert_project_task(self, project_id: str, category_id: str,
                             description: str, sub_category: str, unit: str, quantity: float) -> int:
         return self.db.execute(
             "INSERT INTO ProjectTask (category_id, project_id, description, sub_category, unit, quantity) "

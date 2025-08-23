@@ -21,3 +21,13 @@ def add_project():
 def list_projects():
     service = current_app.config["ProjectService"]
     return jsonify(service.list_all_projects())
+
+
+@bp.get("/projects/<project_id>")
+def get_project(project_id: str):
+    service = current_app.config["ProjectService"]
+    row = service.get_project_record(project_id)
+    if not row:
+        return jsonify({"error": f"Could not find project record for project_id {project_id}"}), 400
+
+    return jsonify(row)

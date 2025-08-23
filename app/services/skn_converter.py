@@ -67,12 +67,11 @@ def parse_skn_line(line: str) -> ProjectTask:
     )
 
 
-def parse_skn_file(path: str) -> List[ProjectTask]:
+def get_project_tasks(skn_file_path: str) -> List[ProjectTask]:
     """Parse an SKN file into a list of ProjectTask objects."""
     items: List[ProjectTask] = []
-    encoding = detect_encoding(path)
-
-    with open(path, encoding=encoding) as f:
+    encoding = detect_encoding(skn_file_path)
+    with open(skn_file_path, encoding=encoding) as f:
         for line in f:
             if not line.strip():
                 continue
@@ -81,16 +80,12 @@ def parse_skn_file(path: str) -> List[ProjectTask]:
             try:
                 parsed_line = parse_skn_line(line)
                 if parsed_line.category_num == 0:
-                    print("File name:")
-                    print(parsed_line.desc)
                     project_name = parsed_line.desc
                 elif parsed_line.section == 0:
                     if parsed_line.sub_category_num % 100:
                         sub_category_name = parsed_line.desc
                     else:
                         category_name = parsed_line.desc
-                    print("Section name:")
-                    print(parsed_line.desc)
                 else:
                     parsed_line.project_name = project_name
                     parsed_line.category_name = category_name
@@ -101,10 +96,11 @@ def parse_skn_file(path: str) -> List[ProjectTask]:
                     continuation = re.sub(r"^[\d\s]+", "", line).strip()
                     items[-1].desc += " " + continuation
                 continue
-
+            except Exception as e:
+                raise Exception(f"There was unexpected error during the process - {e}")
     return items
 
 
 if __name__ == '__main__':
-    file_path = r"C:\Tamir\Uni\Project\skn_converts\היי פוינט 14.4.24.skn"
-    skn_items = parse_skn_file(file_path)
+    skn_path = r"path/to/file.skn"
+    skn_items = get_project_tasks(skn_path)
