@@ -19,16 +19,10 @@ class ProjectService:
     def list_all_projects(self, ):
         return self.db.query_all("SELECT * FROM Project")
 
-    def _insert_project_task(self, category_id: str, project_id: str,
-                             description: str, sub_category: str, unit: str, quantity: float) -> int:
+    def insert_project_task(self, category_id: str, project_id: str,
+                            description: str, sub_category: str, unit: str, quantity: float) -> int:
         return self.db.execute(
             "INSERT INTO ProjectTask (category_id, project_id, description, sub_category, unit, quantity) "
             "VALUES (?,?,?,?,?,?)",
             (category_id, project_id, description, sub_category, unit, quantity)
         )
-
-    def extract_boq(self, data: bytes, project_id: str):
-        """This function will extract the data from the SKN file and will populate the appropriate data into the relevant DB tables"""
-        # _insert_project_task() # foreach
-        # insert_category() # if needed
-        pass

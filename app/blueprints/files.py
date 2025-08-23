@@ -58,3 +58,4 @@ def get_file(file_id: str):
 def download_file(filename: str):
     folder = current_app.config["UPLOAD_FOLDER"]
     return send_from_directory(folder, filename)
+
