@@ -11,12 +11,12 @@ from utilities import now_iso
 
 class FileService:
     def __init__(self, db):
-        #אתחול השירות עם חיבור לבסיס הנתונים
+        # אתחול השירות עם חיבור לבסיס הנתונים
         self.db = db
 
     @staticmethod
     def save_file(file: FileStorage, project_id: str) -> str:
-        """ שומר את הקובץ בתיקיית ההעלאות של האפליקציה ומחזיר את הנתיב לשמירה בבסיס הנתונים""" 
+        """ שומר את הקובץ בתיקיית ההעלאות של האפליקציה ומחזיר את הנתיב לשמירה בבסיס הנתונים"""
         short_id = uuid.uuid4().hex[:4]  # 4 hex chars
         storage_name = secure_filename(f"{short_id}_proj{project_id}_{file.filename}")
         storage_path = os.path.join(current_app.config['UPLOAD_FOLDER'], storage_name)
@@ -37,16 +37,15 @@ class FileService:
         )
 
     def get_file_record(self, file_id: str):
-        #שליפת רשומת קובץ מבסיס הנתונים לפי מזהה הקובץ
+        # שליפת רשומת קובץ מבסיס הנתונים לפי מזהה הקובץ
         return self.db.get_table_record(table='File', filters={'file_id': file_id}, query_one_only=True)
 
     @staticmethod
     def process_skn_to_db(skn_file_path: str, project_id: str) -> dict:
         """ עיבוד קובץ SKN (כתב כמויות), הוספת המשימות והקטגוריות החדשות לבסיס הנתונים עבור מזהה הפרויקט הנתון """
         result = {'new_categories': 0, 'new_project_tasks': 0}
-        project_service = current_app.config["ProjectService"]
         category_service = current_app.config["CategoryService"]
-
+        project_task_service = current_app.config["ProjectTaskService"]
         project_tasks = get_project_tasks(skn_file_path=skn_file_path)
         for task in project_tasks:
             category_id = category_service.category_by_normalized(name=task.category_name)
@@ -54,13 +53,13 @@ class FileService:
                 category_id = category_service.insert_category(task.category_name)
                 result['new_categories'] += 1
                 print(f"category was added {category_id}")
-            project_task_id = project_service.insert_project_task(project_id=project_id,
-                                                                  category_id=category_id,
-                                                                  description=task.desc,
-                                                                  sub_category=task.sub_category_name,
-                                                                  unit=task.unit,
-                                                                  quantity=float(task.quantity)
-                                                                  )
+            project_task_id = project_task_service.insert_project_task(project_id=project_id,
+                                                                       category_id=category_id,
+                                                                       description=task.desc,
+                                                                       sub_category=task.sub_category_name,
+                                                                       unit=task.unit,
+                                                                       quantity=float(task.quantity)
+                                                                       )
             result['new_project_tasks'] += 1
             print(f"project_task_id was added {project_task_id}")
         return result
