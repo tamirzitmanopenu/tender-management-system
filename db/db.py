@@ -92,6 +92,66 @@ class Database:
         # RETURNING default
         return self.execute(sql, params)
 
+    def delete_table_record(self, table: str, filters: dict | None = None,
+                            normalized_fields: list[str] | None = None):
+        sql = f"DELETE FROM {table}"
+        params = []
+
+        if filters:
+            conditions = []
+            for field, value in filters.items():
+                if normalized_fields and field in normalized_fields:
+                    conditions.append(f"LOWER(TRIM({field})) = LOWER(TRIM(?))")
+                else:
+                    conditions.append(f"{field} = ?")
+                params.append(value)
+            sql += " WHERE " + " AND ".join(conditions)
+
+        return self.execute(sql, tuple(params))
+
+    def update_table_record(self, table: str, updates: dict,
+                            filters: dict | None = None,
+                            normalized_fields: list[str] | None = None,
+                            returning: str | list[str] | None = None):
+        if not updates:
+            raise ValueError("updates dict cannot be empty")
+
+        # SET clause
+        set_clause = ", ".join([f"{col} = ?" for col in updates.keys()])
+        params = list(updates.values())
+
+        sql = f"UPDATE {table} SET {set_clause}"
+
+        # WHERE clause if filters are provided
+        if filters:
+            conditions = []
+            for field, value in filters.items():
+                if normalized_fields and field in normalized_fields:
+                    conditions.append(f"LOWER(TRIM({field})) = LOWER(TRIM(?))")
+                else:
+                    conditions.append(f"{field} = ?")
+                params.append(value)
+            sql += " WHERE " + " AND ".join(conditions)
+
+        # Handle RETURNING if requested (SQLite >= 3.35)
+        if returning is not None:
+            if returning == "*" or (isinstance(returning, str) and returning.strip() == "*"):
+                returning_sql = "*"
+            elif isinstance(returning, str):
+                returning_sql = ", ".join([c.strip() for c in returning.split(",") if c.strip()])
+            elif isinstance(returning, (list, tuple)):
+                returning_sql = ", ".join(returning)
+            else:
+                raise ValueError("returning must be None, '*', a column name, or a list of columns")
+
+            try:
+                sql += f" RETURNING {returning_sql}"
+                return self.query_one(sql, tuple(params))
+            except Exception:
+                warnings.warn("Could not use RETURNING - falling back to older SQLite behavior")
+
+        return self.execute(sql, tuple(params))
+
 
 def get_db() -> Database:
     # return a lightweight repo; the actual connection lives in g

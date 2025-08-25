@@ -36,6 +36,17 @@ def get_project(project_id: str):
     return jsonify(row)
 
 
+@bp.delete("/projects/<project_id>")
+def delete_project(project_id: str):
+    service = current_app.config["ProjectService"]
+    row = service.get_project_record(project_id)
+    if not row:
+        return jsonify({"error": f"Could not find project record for project_id {project_id}"}), 400
+
+    service.delete_project_record(project_id)
+    return jsonify({'deleted': project_id})
+
+
 # Get all tasks for the project on a certain category
 @bp.get("/projects/<string:project_id>/category/<string:category_id>/project_tasks")
 def get_project_tasks_by_proj_and_catg(project_id: str, category_id: str):
