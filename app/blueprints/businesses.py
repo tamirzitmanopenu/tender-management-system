@@ -4,7 +4,7 @@ from utilities import require_json, log_event
 
 bp = Blueprint("businesses", __name__)
 
-
+# Add a new business נתיב להוספת עסק חדש
 @bp.post("/businesses")
 def add_business():
     data, err = require_json("company_name", "business_id")
@@ -22,7 +22,7 @@ def add_business():
     )
     return jsonify({"business_id": data["business_id"]}), 201
 
-
+# List all businesses רשימת כל העסקים
 @bp.get("/businesses")
 def list_businesses():
     service = current_app.config["BusinessService"]

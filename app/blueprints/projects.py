@@ -4,7 +4,7 @@ from utilities import require_json, log_event, actor_from_headers
 
 bp = Blueprint("projects", __name__)
 
-
+# Add a new project נתיב להוספת פרויקט חדש
 @bp.post("/projects")
 def add_project():
     service = current_app.config["ProjectService"]
@@ -16,13 +16,13 @@ def add_project():
     log_event(f"A new project was added, {data['name']} with project_id: {project_id}")
     return jsonify({"project_id": project_id}), 201
 
-
+# List all projects רשימת כל הפרויקטים
 @bp.get("/projects")
 def list_projects():
     service = current_app.config["ProjectService"]
     return jsonify(service.list_all_projects())
 
-
+# Get project details קבלת פרטי פרויקט
 @bp.get("/projects/<project_id>")
 def get_project(project_id: str):
     service = current_app.config["ProjectService"]
