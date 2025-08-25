@@ -15,6 +15,7 @@ from .blueprints.categories import bp as categories_bp
 from .blueprints.projects import bp as projects_bp
 from .blueprints.files import bp as files_bp
 from .blueprints.offers import bp as offers_bp
+from .blueprints.category_comparison import category_comparison_bp
 
 
 def create_app():
@@ -26,6 +27,7 @@ def create_app():
     app.register_blueprint(projects_bp, url_prefix="/api")
     app.register_blueprint(files_bp, url_prefix="/api")
     app.register_blueprint(offers_bp, url_prefix="/api")
+    app.register_blueprint(category_comparison_bp)
 
     with app.app_context():
         repo = get_db()
