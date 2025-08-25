@@ -7,7 +7,7 @@ import chardet
 
 DEFAULT_UNIT = "יח'"
 
-
+#מחזיר את יחידת המדידה המתאימה לפי מזהה שנמצא בקובץ SKN
 def get_unit(unit_id: str) -> str:
     unit_map = {
         '01': "יח'",
@@ -19,13 +19,13 @@ def get_unit(unit_id: str) -> str:
     }
     return unit_map.get(unit_id, DEFAULT_UNIT)
 
-
+# מזהה קידוד של קובץ SKN
 def detect_encoding(file_path):
     with open(file_path, 'rb') as file:
         result = chardet.detect(file.read())
     return result['encoding']
 
-
+# Data class representing a task in the project
 @dataclass
 class ProjectTask:
     category_num: int
@@ -43,7 +43,7 @@ class ProjectTask:
 
 
 def parse_skn_line(line: str) -> ProjectTask:
-    """Parse a single SKN line into a ProjectTask."""
+    """Parse a single SKN line into a ProjectTask. ויוצר ממנה מופע של ProjectTask מנתח שורה אחת מקובץ SKN"""
     if len(line) < 33:
         raise ValueError("Line too short to parse")
 
@@ -66,7 +66,7 @@ def parse_skn_line(line: str) -> ProjectTask:
         total_price=total_price,
     )
 
-
+# קורא קובץ SKN שלם ומחזיר רשימה של אובייקטים מסוג ProjectTask
 def get_project_tasks(skn_file_path: str) -> List[ProjectTask]:
     """Parse an SKN file into a list of ProjectTask objects."""
     items: List[ProjectTask] = []
@@ -100,7 +100,7 @@ def get_project_tasks(skn_file_path: str) -> List[ProjectTask]:
                 raise Exception(f"There was unexpected error during the process - {e}")
     return items
 
-
+# הרצה לבדיקה עצמית (אם הקובץ מורץ ישירות)
 if __name__ == '__main__':
     skn_path = r"path/to/file.skn"
     skn_items = get_project_tasks(skn_path)

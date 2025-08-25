@@ -7,7 +7,7 @@ from utilities import log_event, actor_from_headers, require_json
 
 bp = Blueprint("files", __name__)
 
-
+# Upload a new file העלאת קובץ חדש
 @bp.post("/files")
 def store_file():
     service = current_app.config["FileService"]
@@ -40,7 +40,7 @@ def store_file():
         "storage_path": storage_path
     }), 201
 
-
+# Get file metadata and download URL קבלת מטא-נתונים של קובץ וקישור להורדה
 @bp.get("/files/<file_id>")
 def get_file(file_id: str):
     service = current_app.config["FileService"]
@@ -55,13 +55,13 @@ def get_file(file_id: str):
         "download_url": url_for("files.download_file", filename=row["name"], _external=True)
     })
 
-
+# Download a file הורדת קובץ
 @bp.get("/files/download/<filename>")
 def download_file(filename: str):
     folder = current_app.config["UPLOAD_FOLDER"]
     return send_from_directory(folder, filename)
 
-
+# Process SKN file (bill of quantities) עיבוד קובץ SKN (כתב כמויות)
 @bp.post("/files/<file_id>/process-skn")
 def process_skn(file_id: str):
     """
