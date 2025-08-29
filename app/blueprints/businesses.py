@@ -4,6 +4,7 @@ from utilities import require_json, log_event
 
 bp = Blueprint("businesses", __name__)
 
+
 # Add a new business נתיב להוספת עסק חדש
 @bp.post("/businesses")
 def add_business():
@@ -22,9 +23,55 @@ def add_business():
     )
     return jsonify({"business_id": data["business_id"]}), 201
 
+
 # List all businesses רשימת כל העסקים
 @bp.get("/businesses")
 def list_businesses():
     service = current_app.config["BusinessService"]
     rows = service.list_all_businesses()
     return jsonify(rows)
+
+
+@bp.post("/businesses-category-selections")
+def add_business_category_selection():
+    data, err = require_json("project_id", "items")
+    if err:
+        return err
+
+    project_id = str(data["project_id"])
+    items = data["items"]
+
+    if not isinstance(items, list) or not items:
+        return jsonify({"error": "items must be a non-empty list"}), 400
+
+    service = current_app.config["BusinessCategoryService"]
+
+    created = []
+    try:
+        for i, item in enumerate(items, start=1):
+            if not isinstance(item, dict):
+                log_event(f"[BusinessCategorySelection][ERROR] item #{i} must be an object", level="WARNING")
+                return jsonify({"error": f"item #{i} must be an object"}), 400
+
+            if "business_category_id" not in item:
+                log_event(f"[BusinessCategorySelection][ERROR] item #{i} missing business_category_id", level="WARNING")
+                return jsonify({"error": f"item #{i} missing business_category_id"}), 400
+
+            business_category_id = str(item["business_category_id"])
+
+            selection_id = service.insert_business_category_selection(
+                business_category_id=business_category_id,
+                project_id=project_id
+            )
+
+            created.append({"business_category_id": business_category_id, "selection_id": selection_id})
+
+        log_event(
+            f"[BusinessCategorySelection] batch created. project_id={project_id}, count={len(created)}"
+        )
+        return jsonify({"project_id": project_id, "created": created}), 201
+
+    except Exception as e:
+        log_event(f"[BusinessCategorySelection][ERROR] batch create failed: {e}", level="ERROR")
+        return jsonify({"error": "Failed to create business category selections"}), 500
+
