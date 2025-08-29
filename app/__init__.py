@@ -3,6 +3,7 @@ import os
 from flask import Flask
 
 from db.db import get_db
+from .services.ai_recommendation_service import AIRecommendationService
 from .services.business_service import BusinessService
 from .services.category_comparison_service import CategoryComparisonService
 from .services.category_service import CategoryService
@@ -40,6 +41,7 @@ def create_app():
     app.config['ProjectTaskService'] = ProjectTaskService(repo)
     app.config['OfferService'] = OfferService(repo)
     app.config['CategoryComparisonService'] = CategoryComparisonService(repo)
+    app.config['AIRecommendationService'] = AIRecommendationService(repo)
 
     upload_folder = os.path.join(os.path.dirname(__file__), "uploads")
     os.makedirs(upload_folder, exist_ok=True)

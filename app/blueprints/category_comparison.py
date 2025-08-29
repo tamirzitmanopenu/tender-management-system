@@ -56,3 +56,32 @@ def get_category_comparison_details(project_id: int):
             'status': 'error',
             'message': str(e)
         }), 500
+
+
+@bp.post('/ai/recommendations')
+def get_ai_recommendation():
+    try:
+        data, err = require_json("project_id", "category_id")
+        if err:
+            return err
+
+        if 'project_id' not in data or "category_id" not in data:
+            return jsonify({
+                'status': 'error',
+                'message': 'Missing required parameters: project_id or category_id'
+            }), 400
+
+        service = current_app.config["AIRecommendationService"]
+
+        ai_prompt = service.create_ai_prompt(project_id=data['project_id'], category_id=data['category_id'])
+        answer = service.get_answer_from_openAI(prompt=ai_prompt)
+        return jsonify({
+            "project_id": data['project_id'],
+            "category_id": data['category_id'],
+            "ai_result": answer
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 500
