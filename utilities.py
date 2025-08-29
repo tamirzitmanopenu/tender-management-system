@@ -10,7 +10,7 @@ def now_iso():
 
 
 def actor_from_headers():
-    return request.headers.get("X-User", "system")
+    return request.headers.get("X-User")
 
 
 def log_event(message, username=None, level="INFO"):
