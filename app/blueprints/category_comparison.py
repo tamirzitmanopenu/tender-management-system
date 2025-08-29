@@ -1,16 +1,17 @@
-from flask import Blueprint, jsonify, request, current_app
-from app.services.category_comparison_service import CategoryComparisonService
-from db.db import get_db
+from flask import Blueprint, jsonify, current_app
 
-category_comparison_bp = Blueprint('category_comparison', __name__)
+from utilities import require_json
 
-@category_comparison_bp.route('/api/projects/<int:project_id>/category-comparison', methods=['GET'])
+bp = Blueprint("category_comparison_bp", __name__)
+
+
+@bp.get('/projects/<int:project_id>/category-comparison')
 def get_category_comparison(project_id: int):
     """
     Get category comparison data for a specific project
     """
     try:
-        service = CategoryComparisonService(get_db())
+        service = current_app.config["CategoryComparisonService"]
         comparison_data = service.get_category_comparison_data(project_id)
         return jsonify({
             'status': 'success',
@@ -22,25 +23,28 @@ def get_category_comparison(project_id: int):
             'message': str(e)
         }), 500
 
-@category_comparison_bp.route('/api/projects/<int:project_id>/category-comparison/details', methods=['GET'])
+
+@bp.get('/projects/<int:project_id>/category-comparison/details')
 def get_category_comparison_details(project_id: int):
     """
     Get detailed breakdown for a specific category and supplier
     """
     try:
-        category_id = request.args.get('category_id', type=int)
-        business_category_id = request.args.get('business_category_id', type=int)
-        
-        if not category_id or not business_category_id:
+        data, err = require_json("business_category_id")
+        if err:
+            return err
+
+        if 'business_category_id' not in data:
             return jsonify({
                 'status': 'error',
-                'message': 'Missing required parameters: category_id and business_category_id'
+                'message': 'Missing required parameters: business_category_id'
             }), 400
-            
-        service = CategoryComparisonService(get_db())
+
+        business_category_id = data['business_category_id']
+
+        service = current_app.config["CategoryComparisonService"]
         details = service.get_supplier_category_details(
-            project_id, 
-            category_id, 
+            project_id,
             business_category_id
         )
         return jsonify({

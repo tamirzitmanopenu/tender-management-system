@@ -4,6 +4,7 @@ from flask import Flask
 
 from db.db import get_db
 from .services.business_service import BusinessService
+from .services.category_comparison_service import CategoryComparisonService
 from .services.category_service import CategoryService
 from .services.file_service import FileService
 from .services.offer_service import OfferService
@@ -15,7 +16,7 @@ from .blueprints.categories import bp as categories_bp
 from .blueprints.projects import bp as projects_bp
 from .blueprints.files import bp as files_bp
 from .blueprints.offers import bp as offers_bp
-from .blueprints.category_comparison import category_comparison_bp
+from .blueprints.category_comparison import bp as category_comparison_bp
 
 
 def create_app():
@@ -27,7 +28,7 @@ def create_app():
     app.register_blueprint(projects_bp, url_prefix="/api")
     app.register_blueprint(files_bp, url_prefix="/api")
     app.register_blueprint(offers_bp, url_prefix="/api")
-    app.register_blueprint(category_comparison_bp)
+    app.register_blueprint(category_comparison_bp, url_prefix="/api")
 
     with app.app_context():
         repo = get_db()
@@ -38,7 +39,7 @@ def create_app():
     app.config['FileService'] = FileService(repo)
     app.config['ProjectTaskService'] = ProjectTaskService(repo)
     app.config['OfferService'] = OfferService(repo)
-
+    app.config['CategoryComparisonService'] = CategoryComparisonService(repo)
 
     upload_folder = os.path.join(os.path.dirname(__file__), "uploads")
     os.makedirs(upload_folder, exist_ok=True)
