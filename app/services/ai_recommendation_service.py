@@ -1,19 +1,16 @@
 import json
 
 from openai import OpenAI
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 
 class AIRecommendationService:
     def __init__(self, db):
         self.db = db
-        self.ai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-    def get_answer_from_openAI(self, prompt: str) -> str:
-        response = self.ai_client.responses.create(
+    @staticmethod
+    def get_answer_from_openAI(prompt: str) -> str:
+        ai_client = OpenAI()
+        response = ai_client.responses.create(
             model="gpt-5-nano-2025-08-07",
             input=prompt
         )
