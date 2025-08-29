@@ -1,9 +1,11 @@
+import os
 import sqlite3
 import warnings
 
-from flask import g
+from flask import g, has_app_context
 
-DB_PATH = r"db/tender-management-system.db"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "tender-management-system.db")
 
 
 def dict_factory(cursor, row):
@@ -11,19 +13,35 @@ def dict_factory(cursor, row):
 
 
 class Database:
-    """Simple SQLite wrapper used by the application."""
+    """Simple SQLite wrapper used by the application or standalone."""
 
     def __init__(self, path: str = DB_PATH):
         self.path = path
+        self._local_conn = None  # used outside Flask context
 
     def _get_conn(self) -> sqlite3.Connection:
-        # one connection per request/thread
-        if "db_conn" not in g:
-            conn = sqlite3.connect(self.path)
-            conn.row_factory = dict_factory
-            conn.execute("PRAGMA foreign_keys = ON;")
-            g.db_conn = conn
-        return g.db_conn
+        if has_app_context():
+            if "db_conn" not in g:
+                conn = sqlite3.connect(self.path)
+                conn.row_factory = dict_factory
+                conn.execute("PRAGMA foreign_keys = ON;")
+                g.db_conn = conn
+            return g.db_conn
+        else:
+            if self._local_conn is None:
+                self._local_conn = sqlite3.connect(self.path)
+                self._local_conn.row_factory = dict_factory
+                self._local_conn.execute("PRAGMA foreign_keys = ON;")
+            return self._local_conn
+
+    def close(self):
+        if has_app_context():
+            conn = g.pop("db_conn", None)
+            if conn is not None:
+                conn.close()
+        elif self._local_conn is not None:
+            self._local_conn.close()
+            self._local_conn = None
 
     def query_one(self, sql, params=()):
         cur = self._get_conn().execute(sql, params)
@@ -73,7 +91,6 @@ class Database:
         sql = f"INSERT INTO {table} ({col_list}) VALUES ({placeholders})"
 
         if returning is not None:
-            # Normalize RETURNING columns
             if returning == "*" or (isinstance(returning, str) and returning.strip() == "*"):
                 returning_sql = "*"
             elif isinstance(returning, str):
@@ -82,14 +99,12 @@ class Database:
                 returning_sql = ", ".join(returning)
             else:
                 raise ValueError("returning must be None, '*', a column name, or a list of columns")
-            # Try SQLite RETURNING first (>= 3.35)
             try:
                 sql += f" RETURNING {returning_sql}"
                 return self.query_one(sql, params)
             except Exception:
                 warnings.warn("Could not use return - using older method of SQLite")
 
-        # RETURNING default
         return self.execute(sql, params)
 
     def delete_table_record(self, table: str, filters: dict | None = None,
@@ -116,13 +131,11 @@ class Database:
         if not updates:
             raise ValueError("updates dict cannot be empty")
 
-        # SET clause
         set_clause = ", ".join([f"{col} = ?" for col in updates.keys()])
         params = list(updates.values())
 
         sql = f"UPDATE {table} SET {set_clause}"
 
-        # WHERE clause if filters are provided
         if filters:
             conditions = []
             for field, value in filters.items():
@@ -133,7 +146,6 @@ class Database:
                 params.append(value)
             sql += " WHERE " + " AND ".join(conditions)
 
-        # Handle RETURNING if requested (SQLite >= 3.35)
         if returning is not None:
             if returning == "*" or (isinstance(returning, str) and returning.strip() == "*"):
                 returning_sql = "*"
@@ -154,11 +166,10 @@ class Database:
 
 
 def get_db() -> Database:
-    # return a lightweight repo; the actual connection lives in g
     return Database()
 
 
 def close_db(e=None):
-    conn = g.pop("db_conn", None)
-    if conn is not None:
-        conn.close()
+    db = g.pop("db_conn", None) if has_app_context() else None
+    if db is not None:
+        db.close()
