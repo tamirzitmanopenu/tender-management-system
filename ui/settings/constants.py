@@ -4,7 +4,7 @@
 BASE_URL = "https://tendysys.pythonanywhere.com/api"
 
 # Landing page
-WEBSITE_TITLE = "🎈 י ינקוביץ"
+WEBSITE_TITLE = "י ינקוביץ 🎈"
 WEBSITE_WELCOME_TEXT = "ברוכים הבאים למערכת המכרזים"
 
 # Offer submission page
@@ -18,9 +18,12 @@ OFFER_SUBMIT_ERROR = "נכשלה שליחת ההצעה"
 # Reports page
 REPORTS_HEADER = "דוח השוואת קטגוריות"
 REPORTS_SELECT_PROJECT = "בחר פרויקט"
-REPORTS_FETCH_BTN = "שלוף השוואה"
+REPORTS_FETCH_BTN = "טען השוואת פרויקט"
 REPORTS_FETCH_ERROR = "שגיאה בהפקת הדוח"
-REPORTS_SELECT_CATEGORY = "בחר ספק/קטגוריה"
+REPORTS_SELECT_CATEGORY_AND_SUPPLIER = "בחר ספק בקטגוריה"
+REPORTS_SELECT_CATEGORY_ONLY = "קטגוריה להצגה"
+REPORTS_DETAILED_HEADER = "פירוט לפי ספק בקטגורה"
+
 REPORTS_DETAILS_BTN = "הצג פרטים"
 REPORTS_DETAILS_ERROR = "שגיאה בפרטי הדוח"
 

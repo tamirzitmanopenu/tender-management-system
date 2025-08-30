@@ -32,7 +32,8 @@ pages = {
         st.Page("supplier_new.py", title=PAGE_NEW),
     ],
     NAV_CATEGORIES: [
-        st.Page("permissions_mng.py", title=PAGE_MANAGE),
+        st.Page("category_mng.py", title=PAGE_MANAGE),
+        st.Page("category_new.py", title=PAGE_NEW),
     ],
     NAV_OFFERS: [
         st.Page("offer_new.py", title=PAGE_SUBMIT),
