@@ -21,9 +21,6 @@ pages = {
     "קטגוריות": [
         st.Page("permissions_mng.py", title="ניהול"),
     ],
-    "קבצים": [
-        st.Page("files_mng.py", title="ניהול"),
-    ],
     "הצעות": [
         st.Page("offer_new.py", title="הגשה"),
     ],

@@ -11,6 +11,6 @@ with st.form("ai_form"):
 if submitted:
     resp = post("/ai/recommendations", json={"project_id": project_id, "category_id": category_id})
     if resp.ok:
-        st.write(resp.json().get("ai_result"))
+        st.dataframe(resp.json().get("ai_result"))
     else:
         st.error("שגיאה בקבלת המלצה")

@@ -8,7 +8,7 @@ if st.button("שלוף השוואה") and project_id:
     resp = get(f"/projects/{project_id}/category-comparison")
     if resp.ok:
         data = resp.json().get('data')
-        st.json(data)
+        st.dataframe(data)
     else:
         st.error("שגיאה בהפקת הדוח")
 

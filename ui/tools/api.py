@@ -1,6 +1,6 @@
 import requests
 
-BASE_URL = "https://tendysys.pythonanywhere.com"
+BASE_URL = "https://tendysys.pythonanywhere.com/api"
 
 
 def get(path: str, **kwargs):

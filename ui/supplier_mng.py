@@ -7,7 +7,7 @@ resp = get("/businesses")
 if resp.ok:
     suppliers = resp.json()
     if suppliers:
-        st.table(suppliers)
+        st.dataframe(suppliers)
     else:
         st.info("אין ספקים")
 else:
