@@ -1,6 +1,48 @@
 import streamlit as st
 
-st.title("🎈 My new app")
-st.write(
-    "Let's start building! For help and inspiration, head over to [docs.streamlit.io](https://docs.streamlit.io/)."
+from tools.design import set_rtl
+from settings.constants import (
+    WEBSITE_TITLE,
+    WEBSITE_WELCOME_TEXT,
+    NAV_PROJECTS,
+    NAV_SUPPLIERS,
+    NAV_CATEGORIES,
+    NAV_OFFERS,
+    NAV_REPORTS,
+    PAGE_MANAGE,
+    PAGE_NEW,
+    PAGE_SUBMIT,
+    PAGE_COMPARE,
+    PAGE_AI_RECOM,
 )
+
+st.title(WEBSITE_TITLE)
+st.write(WEBSITE_WELCOME_TEXT)
+
+# יישור לימין
+set_rtl()
+
+pages = {
+    NAV_PROJECTS: [
+        st.Page("project_mng.py", title=PAGE_MANAGE),
+        st.Page("project_new.py", title=PAGE_NEW),
+    ],
+    NAV_SUPPLIERS: [
+        st.Page("supplier_mng.py", title=PAGE_MANAGE),
+        st.Page("supplier_new.py", title=PAGE_NEW),
+    ],
+    NAV_CATEGORIES: [
+        st.Page("category_mng.py", title=PAGE_MANAGE),
+        st.Page("category_new.py", title=PAGE_NEW),
+    ],
+    NAV_OFFERS: [
+        st.Page("offer_new.py", title=PAGE_SUBMIT),
+    ],
+    NAV_REPORTS: [
+        st.Page("reports.py", title=PAGE_COMPARE),
+        st.Page("ai_recom.py", title=PAGE_AI_RECOM),
+    ],
+}
+
+pg = st.navigation(pages)
+pg.run()
