@@ -18,12 +18,18 @@ pages = {
         st.Page("supplier_mng.py", title="ניהול"),
         st.Page("supplier_new.py", title="חדש"),
     ],
-    "הרשאות": [
-        st.Page("permissions_mng.py", title="ניהול")
+    "קטגוריות": [
+        st.Page("permissions_mng.py", title="ניהול"),
+    ],
+    "קבצים": [
+        st.Page("files_mng.py", title="ניהול"),
+    ],
+    "הצעות": [
+        st.Page("offer_new.py", title="הגשה"),
     ],
     "דוחות": [
         st.Page("reports.py", title="השוואה"),
-        st.Page("ai_recom.py", title="המלצת AI")
+        st.Page("ai_recom.py", title="המלצת AI"),
     ],
 }
 
