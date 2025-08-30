@@ -5,7 +5,9 @@ import warnings
 from flask import g, has_app_context
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "tender-management-system.db")
+DB_PATH = os.getenv(
+    "DATABASE_PATH", os.path.join(BASE_DIR, "tender-management-system.db")
+)
 
 
 def dict_factory(cursor, row):
@@ -15,8 +17,8 @@ def dict_factory(cursor, row):
 class Database:
     """Simple SQLite wrapper used by the application or standalone."""
 
-    def __init__(self, path: str = DB_PATH):
-        self.path = path
+    def __init__(self, path: str | None = None):
+        self.path = path or DB_PATH
         self._local_conn = None  # used outside Flask context
 
     def _get_conn(self) -> sqlite3.Connection:
@@ -165,8 +167,8 @@ class Database:
         return self.execute(sql, tuple(params))
 
 
-def get_db() -> Database:
-    return Database()
+def get_db(path: str | None = None) -> Database:
+    return Database(path)
 
 
 def close_db(e=None):
