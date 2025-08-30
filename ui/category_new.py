@@ -1,7 +1,7 @@
 import streamlit as st
-from tools.api import get, post
+from tools.api import post
 
-st.header("ניהול קטגוריות")
+st.header("קטגוריה חדשה")
 
 # Add category
 with st.form("add_category"):
@@ -13,14 +13,3 @@ if submitted:
         st.success("הקטגוריה נוספה")
     else:
         st.error("נכשלה הוספת הקטגוריה")
-
-# List categories
-resp = get("/categories")
-if resp.ok:
-    cats = resp.json()
-    if cats:
-        st.table(cats)
-    else:
-        st.info("אין קטגוריות")
-else:
-    st.error("שגיאה בשליפת קטגוריות")
