@@ -84,6 +84,5 @@ if submitted:
     resp = post("/offers", json=data)
     if resp.ok:
         st.success(OFFER_SUBMIT_SUCCESS)
-        data
     else:
         st.error(OFFER_SUBMIT_ERROR)
