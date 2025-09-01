@@ -1,3 +1,5 @@
+import os
+
 import streamlit as st
 
 from tools.design import set_rtl
@@ -15,10 +17,14 @@ from settings.constants import (
     PAGE_COMPARE,
     PAGE_AI_RECOM,
 )
+from dotenv import load_dotenv
 
+load_dotenv()  # loads from .env into os.environ
+env = os.getenv("ENV","")
+
+st.title(f"{WEBSITE_TITLE} {env}")
 st.title(WEBSITE_TITLE)
 st.write(WEBSITE_WELCOME_TEXT)
-
 # יישור לימין
 set_rtl()
 

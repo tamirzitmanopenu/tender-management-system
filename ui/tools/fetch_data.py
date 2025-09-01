@@ -36,6 +36,17 @@ def fetch_comparison(project_id: str):
 
 
 @st.cache_resource
+def fetch_business_category(category_id: str = None):
+    url = "/business-category"
+    if category_id is not None:
+        url += f"?category_id={category_id}"
+    resp = get(url)
+    if resp.ok:
+        return resp.json().get("data", [])
+    return None
+
+
+@st.cache_resource
 def fetch_details(project_id: str, bc_id: str):
     resp = get(
         f"/projects/{project_id}/category-comparison/details",

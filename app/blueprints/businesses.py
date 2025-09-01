@@ -85,7 +85,10 @@ def get_business_category():
     service = current_app.config["BusinessCategoryService"]
     try:
         results = service.get_business_category(business_id=business_id, category_id=category_id)
-        return jsonify(results), 200
+        return jsonify({
+            'status': 'success',
+            'data': results
+        }), 200
     except Exception as e:
         log_event(f"[BusinessCategory][ERROR] Retrieval failed: {e}", level="ERROR")
         return jsonify({"error": "Failed to retrieve business category"}), 500

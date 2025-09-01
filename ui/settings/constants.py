@@ -2,6 +2,7 @@
 
 # Generic
 BASE_URL = "https://tendysys.pythonanywhere.com/api"
+DEV_BASE_URL = "http://127.0.0.1:5000/api"
 
 # Landing page
 WEBSITE_TITLE = "י ינקוביץ 🎈"
@@ -40,3 +41,10 @@ PAGE_SUBMIT = "הגשה"
 PAGE_COMPARE = "השוואה"
 PAGE_AI_RECOM = "המלצת AI"
 
+# constants.py
+FIELD_LABELS = {
+    "new_project_name": "שם הפרויקט",
+    "new_deadline": "תאריך היעד",
+    "uploaded_skn": "קובץ כתב כמויות",
+    "file_type": "סוג הקובץ"
+}
