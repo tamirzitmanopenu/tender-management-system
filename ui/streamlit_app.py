@@ -13,9 +13,7 @@ from settings.constants import (
     NAV_REPORTS,
     PAGE_MANAGE,
     PAGE_NEW,
-    PAGE_SUBMIT,
     PAGE_COMPARE,
-    PAGE_AI_RECOM,
 )
 from dotenv import load_dotenv
 
@@ -42,11 +40,10 @@ pages = {
         st.Page("category_new.py", title=PAGE_NEW),
     ],
     NAV_OFFERS: [
-        st.Page("offer_new.py", title=PAGE_SUBMIT),
+        st.Page("offer_new.py", title=PAGE_NEW),
     ],
     NAV_REPORTS: [
-        st.Page("reports.py", title=PAGE_COMPARE),
-        st.Page("ai_recom.py", title=PAGE_AI_RECOM),
+        st.Page("reports.py", title=PAGE_COMPARE)
     ],
 }
 
