@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, current_app
+from flask import Blueprint, jsonify, current_app, request
 
 from utilities import require_json, log_event
 
@@ -75,3 +75,17 @@ def add_business_category_selection():
         log_event(f"[BusinessCategorySelection][ERROR] batch create failed: {e}", level="ERROR")
         return jsonify({"error": "Failed to create business category selections"}), 500
 
+
+# Get business category מידע על דירוג ספק בקטגוריה
+@bp.get("/business-category")
+def get_business_category():
+    business_id = request.args.get("business_id", None)
+    category_id = request.args.get("category_id", None)
+
+    service = current_app.config["BusinessCategoryService"]
+    try:
+        results = service.get_business_category(business_id=business_id, category_id=category_id)
+        return jsonify(results), 200
+    except Exception as e:
+        log_event(f"[BusinessCategory][ERROR] Retrieval failed: {e}", level="ERROR")
+        return jsonify({"error": "Failed to retrieve business category"}), 500
