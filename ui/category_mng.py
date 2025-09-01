@@ -8,7 +8,7 @@ resp = get("/categories")
 if resp.ok:
     cats = resp.json()
     if cats:
-        st.table(cats)
+        st.dataframe(cats)
     else:
         st.info("אין קטגוריות")
 else:

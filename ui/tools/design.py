@@ -2,15 +2,15 @@ import streamlit as st
 
 
 def set_rtl():
-    st.markdown(
-        """
+    st.markdown("""
     <style>
-    body, html {
-        direction: RTL;
-        unicode-bidi: bidi-override;
-        text-align: right;
-    }
+      /* App layout RTL */
+      body, html { direction: rtl; unicode-bidi: plaintext; }
+
+      /* Charts must stay LTR so axes don't shift */
+      .stVegaLiteChart, .vega-embed, .stPlotlyChart, .js-plotly-plot {
+        direction: ltr !important;
+        text-align: left !important;
+      }
     </style>
-    """,
-        unsafe_allow_html=True,
-    )
+    """, unsafe_allow_html=True)
