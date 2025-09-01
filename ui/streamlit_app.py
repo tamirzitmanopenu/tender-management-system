@@ -10,40 +10,35 @@ from settings.constants import (
     NAV_SUPPLIERS,
     NAV_CATEGORIES,
     NAV_OFFERS,
-    NAV_REPORTS,
     PAGE_MANAGE,
-    PAGE_NEW,
-    PAGE_COMPARE,
+    PAGE_NEW, ICON_MANAGE, ICON_NEW, ICON_OFFERS, PAGE_REPORT, ICON_REPORTS,
 )
 from dotenv import load_dotenv
 
 load_dotenv()  # loads from .env into os.environ
-env = os.getenv("ENV","")
+env = os.getenv("ENV", "")
 
 st.title(f"{WEBSITE_TITLE} {env}")
-st.title(WEBSITE_TITLE)
 st.write(WEBSITE_WELCOME_TEXT)
 # יישור לימין
 set_rtl()
 
 pages = {
     NAV_PROJECTS: [
-        st.Page("project_mng.py", title=PAGE_MANAGE),
-        st.Page("project_new.py", title=PAGE_NEW),
+        st.Page("project_new.py", title=PAGE_NEW, icon=ICON_NEW),
+        st.Page("project_mng.py", title=PAGE_MANAGE, icon=ICON_MANAGE),
     ],
     NAV_SUPPLIERS: [
-        st.Page("supplier_mng.py", title=PAGE_MANAGE),
-        st.Page("supplier_new.py", title=PAGE_NEW),
+        st.Page("supplier_new.py", title=PAGE_NEW, icon=ICON_NEW),
+        st.Page("supplier_mng.py", title=PAGE_MANAGE, icon=ICON_MANAGE),
     ],
     NAV_CATEGORIES: [
-        st.Page("category_mng.py", title=PAGE_MANAGE),
-        st.Page("category_new.py", title=PAGE_NEW),
+        st.Page("category_new.py", title=PAGE_NEW, icon=ICON_NEW),
+        st.Page("category_mng.py", title=PAGE_MANAGE, icon=ICON_MANAGE),
     ],
     NAV_OFFERS: [
-        st.Page("offer_new.py", title=PAGE_NEW),
-    ],
-    NAV_REPORTS: [
-        st.Page("reports.py", title=PAGE_COMPARE)
+        st.Page("offer_new.py", title=PAGE_NEW, icon=ICON_NEW),
+        st.Page("offer_reports.py", title=PAGE_REPORT, icon=ICON_REPORTS),
     ],
 }
 

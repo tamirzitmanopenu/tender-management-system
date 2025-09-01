@@ -1,14 +1,12 @@
 import streamlit as st
 from tools.api import get
+from tools.fetch_data import fetch_business
 
 st.header("ניהול ספקים")
 
-resp = get("/businesses")
-if resp.ok:
-    suppliers = resp.json()
-    if suppliers:
-        st.dataframe(suppliers)
-    else:
-        st.info("אין ספקים")
+
+suppliers = fetch_business()
+if suppliers:
+    st.dataframe(suppliers)
 else:
-    st.error("שגיאה בשליפת ספקים")
+    st.info("אין ספקים")

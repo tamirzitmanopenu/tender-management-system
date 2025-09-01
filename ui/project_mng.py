@@ -1,5 +1,12 @@
 import streamlit as st
 from tools.api import get, delete
+from tools.helpers import show_category_selection
+from settings.constants import ICON_PROJECTS
+
+st.set_page_config(
+    page_icon=ICON_PROJECTS,
+    layout="wide",
+)
 
 st.header("ניהול פרויקטים")
 
@@ -20,6 +27,8 @@ else:
 @st.dialog("נהל פרויקט")
 def project_mng(project):
     project_id = project['project_id']
+    with st.expander(label="הקצאת ספקים"):
+        show_category_selection(project_id)
 
     # Get project files data
     st.title("קבצי פרויקט")
@@ -42,8 +51,6 @@ def project_mng(project):
         else:
             st.error("נכשלה מחיקת הפרויקט")
         st.rerun()
-
-
 
 
 if projects is not None:

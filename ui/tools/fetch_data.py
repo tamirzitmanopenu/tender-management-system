@@ -17,8 +17,11 @@ def fetch_projects() -> dict:
 
 
 @st.cache_resource(show_spinner=FETCH_CATEGORIES)
-def fetch_categories() -> dict:
-    resp = get("/categories")
+def fetch_categories(project_id: str = None) -> dict:
+    url = "/categories"
+    if project_id is not None:
+        url += f"?project_id={project_id}"
+    resp = get(url)
     if resp.ok:
         return {c["category_name"]: c["category_id"] for c in resp.json()}
     return {}
@@ -38,6 +41,14 @@ def fetch_comparison(project_id: str) -> list:
     if resp.ok:
         return resp.json().get("data", [])
     return []
+
+
+@st.cache_resource
+def fetch_business():
+    resp = get("/businesses")
+    if resp.ok:
+        return resp.json().get("data", [])
+    return None
 
 
 @st.cache_resource

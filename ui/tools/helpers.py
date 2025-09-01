@@ -4,8 +4,55 @@ from io import BytesIO
 import pandas as pd
 import streamlit as st
 
+from settings.constants import FIELD_LABELS, PROJECT_CATEGORY_SELECTION_TEXT
+from tools.fetch_data import fetch_business, fetch_categories
+
 
 # -- Streamlit related helpers --
+
+def show_category_selection(project_id):
+    # st.dataframe(business_categories)
+    all_business = fetch_business()
+    categories = fetch_categories(project_id=project_id)
+    # business_categories = fetch_business_category()
+
+    for category_name, category_id in categories.items():
+        # business_categories = fetch_business_category(category_id=category_id)
+        businesses_list = all_business
+        # Business Category Selection:
+        selected_businesses = st.multiselect(
+            label=PROJECT_CATEGORY_SELECTION_TEXT.format(category_name=category_name),
+            label_visibility="collapsed",
+            options=businesses_list,
+            key=f"category_selection_{category_id}",
+            format_func=lambda x: x["company_name"],
+            placeholder=PROJECT_CATEGORY_SELECTION_TEXT.format(category_name=category_name)
+        )
+        selected_ids = [b["business_id"] for b in selected_businesses]
+        st.write("Selected business IDs:", selected_ids)
+
+        # ################################################################################################
+        # # Example data
+        # businesses = [
+        #     {"business_id": 1, "business_name": "Alpha Corp"},
+        #     {"business_id": 2, "business_name": "Beta LLC"},
+        #     {"business_id": 3, "business_name": "Gamma Inc"},
+        # ]
+        #
+        # # Multiselect with format_func to display business_name
+        # selected_businesses = st.multiselect(
+        #     "Select businesses",
+        #     options=businesses,
+        #     format_func=lambda x: x["business_name"]
+        # )
+        #
+        # # Extract the business_id values from the selected dictionaries
+        # selected_ids = [b["business_id"] for b in selected_businesses]
+        #
+        # st.write("Selected business IDs:", selected_ids)
+        # ################################################################################################
+
+
 def show_ai_recom(ai_recom: dict):
     # show_download_as_excel(ai_recom)
 
@@ -102,6 +149,10 @@ def show_download_as_excel(ai_recom: dict):
 
 
 # -- Util helpers --
+def get_label(key):
+    return FIELD_LABELS.get(key, key)
+
+
 def to_excel_download(df):
     # Function to convert dataframe to Excel bytes
     output = BytesIO()
