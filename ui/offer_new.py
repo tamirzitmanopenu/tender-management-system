@@ -3,7 +3,7 @@ import streamlit as st
 from tools.api import post
 from settings.constants import (
     OFFER_HEADER,
-    OFFER_SELECT_PROJECT,
+    SELECT_PROJECT,
     OFFER_SELECT_CATEGORY,
     OFFER_SUBMIT_BTN,
     OFFER_SUBMIT_SUCCESS,
@@ -14,7 +14,7 @@ from tools.fetch_data import fetch_projects, fetch_categories, fetch_tasks
 st.header(OFFER_HEADER)
 
 projects = fetch_projects()
-project_name = st.selectbox(OFFER_SELECT_PROJECT, list(projects.keys()))
+project_name = st.selectbox(SELECT_PROJECT, list(projects.keys()))
 project_id = projects.get(project_name)
 
 categories = fetch_categories()
@@ -52,7 +52,7 @@ with st.container(border=True):
                 unit_price = st.number_input(
                     "מחיר ליחידה",
                     min_value=0.0,
-                    step=0.01,
+                    step=5.0,
                     value=current_price,
                     key=f"task_{task_id}",
                     on_change=update_price,
