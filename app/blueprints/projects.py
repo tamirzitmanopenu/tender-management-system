@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, current_app
+from flask import Blueprint, jsonify, current_app, request
 
 from utilities import require_json, log_event, actor_from_headers
 
@@ -47,10 +47,13 @@ def delete_project(project_id: str):
     return jsonify({'deleted': project_id})
 
 
-# Get all tasks for the project on a certain category
-@bp.get("/projects/<string:project_id>/category/<string:category_id>/project_tasks")
-def get_project_tasks_by_proj_and_catg(project_id: str, category_id: str):
+# Get tasks
+@bp.get("/projects/project_tasks")
+def get_project_tasks_by_proj_and_catg():
     service = current_app.config["ProjectTaskService"]
+
+    project_id = request.args.get("project_id")
+    category_id = request.args.get("category_id")
 
     try:
         project_tasks = service.get_project_tasks(project_id, category_id)  # expected: list[dict] or []
