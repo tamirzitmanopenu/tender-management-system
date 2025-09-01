@@ -1,8 +1,9 @@
-from flask import Blueprint, jsonify, current_app
+from flask import Blueprint, jsonify, current_app, request
 
 from utilities import require_json, log_event
 
 bp = Blueprint("categories", __name__)
+
 
 # Add a new category נתיב להוספת קטגוריה חדשה
 @bp.post("/categories")
@@ -31,8 +32,10 @@ def add_category():
     log_event(f"A new category was added, {name} with category_id: {new_id}")
     return jsonify({"category_id": new_id}), 201
 
+
 # List all categories רשימת כל הקטגוריות
 @bp.get("/categories")
 def get_categories():
+    project_id = request.args.get("project_id", None)
     service = current_app.config["CategoryService"]
-    return jsonify(service.list_categories())
+    return jsonify(service.list_categories(project_id))

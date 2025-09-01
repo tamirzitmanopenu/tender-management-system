@@ -56,6 +56,8 @@ class Database:
         return rows
 
     def execute(self, sql, params=()):
+        print(f"SQL query is: {sql}")
+        print(f"Params are: {params}")
         conn = self._get_conn()
         cur = conn.execute(sql, params)
         conn.commit()
@@ -121,7 +123,6 @@ class Database:
                     conditions.append(f"{field} = ?")
                 params.append(value)
             sql += " WHERE " + " AND ".join(conditions)
-
         return self.execute(sql, tuple(params))
 
     def update_table_record(self, table: str, updates: dict,

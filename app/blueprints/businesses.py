@@ -29,7 +29,10 @@ def add_business():
 def list_businesses():
     service = current_app.config["BusinessService"]
     rows = service.list_all_businesses()
-    return jsonify(rows)
+    return jsonify({
+        'status': 'success',
+        'data': rows
+    }), 200
 
 
 @bp.post("/businesses-category-selections")
