@@ -42,20 +42,22 @@ def store_file():
     }), 201
 
 
-# Get file metadata and download URL קבלת מטא-נתונים של קובץ וקישור להורדה
-@bp.get("/files/<file_id>")
-def get_file(file_id: str):
+# Get files metadata and download URL קבלת מטא-נתונים של קובץ וקישור להורדה
+@bp.get("/files/<project_id>")
+def get_file(project_id: str):
+    payload = []
     service = current_app.config["FileService"]
-    row = service.get_file_record(file_id)
-    if not row:
-        return jsonify({"error": f"Could not find file record for file_id {file_id}"}), 400
-
-    return jsonify({
-        "file_id": file_id,
-        "file_name": row["name"],
-        "file_type": row["file_type"],
-        "download_url": url_for("files.download_file", filename=row["name"], _external=True)
-    })
+    rows = service.get_file_records(project_id)
+    if not rows:
+        return jsonify({"error": f"Could not find file records for project_id {project_id}"}), 400
+    for row in rows:
+        payload.append({
+            "file_id": row["file_id"],
+            "file_name": row["name"],
+            "file_type": row["file_type"],
+            "download_url": url_for("files.download_file", filename=row["name"], _external=True)
+        })
+    return jsonify(payload), 200
 
 
 # Download a file הורדת קובץ

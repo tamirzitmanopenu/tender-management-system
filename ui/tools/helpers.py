@@ -5,52 +5,78 @@ import pandas as pd
 import streamlit as st
 
 from settings.constants import FIELD_LABELS, PROJECT_CATEGORY_SELECTION_TEXT
-from tools.fetch_data import fetch_business, fetch_categories
+from tools.fetch_data import fetch_business, fetch_categories, fetch_business_category
+
+from tools.api import post
 
 
 # -- Streamlit related helpers --
 
-def show_category_selection(project_id):
-    # st.dataframe(business_categories)
+def business_category_selection(project_id: str):
+    business_category_ids = []
     all_business = fetch_business()
     categories = fetch_categories(project_id=project_id)
-    # business_categories = fetch_business_category()
+    with st.form("business_category_selection"):
+        for category_name, category_id in categories.items():
+            business_categories = fetch_business_category(category_id=category_id)
+            businesses_list = all_business
+            # Business Category Selection:
+            selected_businesses = st.multiselect(
+                label=PROJECT_CATEGORY_SELECTION_TEXT.format(category_name=category_name),
+                label_visibility="collapsed",
+                options=businesses_list,
+                key=f"category_selection_{category_id}",
+                format_func=lambda x: x["company_name"],
+                placeholder=PROJECT_CATEGORY_SELECTION_TEXT.format(category_name=category_name)
+            )
+            #TODO - continue working on it
+            selected_ids = [b["business_id"] for b in selected_businesses]
+            for business in selected_businesses:
+                business_id = business["business_id"]
+                business_category_id = None
+                for bc in business_categories:
+                    if bc["business_id"] == business_id:
+                        business_category_id = bc["business_category_id"]
+                        break  # no need to keep checking since only one can exist
 
-    for category_name, category_id in categories.items():
-        # business_categories = fetch_business_category(category_id=category_id)
-        businesses_list = all_business
-        # Business Category Selection:
-        selected_businesses = st.multiselect(
-            label=PROJECT_CATEGORY_SELECTION_TEXT.format(category_name=category_name),
-            label_visibility="collapsed",
-            options=businesses_list,
-            key=f"category_selection_{category_id}",
-            format_func=lambda x: x["company_name"],
-            placeholder=PROJECT_CATEGORY_SELECTION_TEXT.format(category_name=category_name)
-        )
-        selected_ids = [b["business_id"] for b in selected_businesses]
-        st.write("Selected business IDs:", selected_ids)
+                if business_category_id is None:
+                    business_category_id = register_category_business(category_id, business_id)
 
-        # ################################################################################################
-        # # Example data
-        # businesses = [
-        #     {"business_id": 1, "business_name": "Alpha Corp"},
-        #     {"business_id": 2, "business_name": "Beta LLC"},
-        #     {"business_id": 3, "business_name": "Gamma Inc"},
-        # ]
-        #
-        # # Multiselect with format_func to display business_name
-        # selected_businesses = st.multiselect(
-        #     "Select businesses",
-        #     options=businesses,
-        #     format_func=lambda x: x["business_name"]
-        # )
-        #
-        # # Extract the business_id values from the selected dictionaries
-        # selected_ids = [b["business_id"] for b in selected_businesses]
-        #
-        # st.write("Selected business IDs:", selected_ids)
-        # ################################################################################################
+                business_category_ids.append(business_category_id)
+
+            st.write("Selected business IDs:", selected_ids)
+
+            # ################################################################################################
+            # # Example data
+            # businesses = [
+            #     {"business_id": 1, "business_name": "Alpha Corp"},
+            #     {"business_id": 2, "business_name": "Beta LLC"},
+            #     {"business_id": 3, "business_name": "Gamma Inc"},
+            # ]
+            #
+            # # Multiselect with format_func to display business_name
+            # selected_businesses = st.multiselect(
+            #     "Select businesses",
+            #     options=businesses,
+            #     format_func=lambda x: x["business_name"]
+            # )
+            #
+            # # Extract the business_id values from the selected dictionaries
+            # selected_ids = [b["business_id"] for b in selected_businesses]
+            #
+            # st.write("Selected business IDs:", selected_ids)
+            # ################################################################################################
+        submitted = st.form_submit_button("הפצת מכרז", use_container_width=True)
+    if submitted:
+        business_category_items: list[dict[str, str]] = []
+        # TODO: go over it again
+        data = {"project_id": project_id, "items": business_category_items}
+        bc_selection_resp = post("/businesses-category-selections", json=data)
+        if bc_selection_resp.ok:
+            st.success("succ123")
+        else:
+            st.error("err123")
+            st.stop()
 
 
 def show_ai_recom(ai_recom: dict):

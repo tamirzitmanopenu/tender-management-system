@@ -42,5 +42,15 @@ pages = {
     ],
 }
 
+#TODO: Update
+st.set_page_config(
+    page_icon=ICON_OFFERS,
+    layout="centered",
+    menu_items={
+        'Get Help': 'https://www.extremelycoolapp.com/help',
+        'Report a bug': "https://www.extremelycoolapp.com/bug",
+        'About': "# This is a header. This is an *extremely* cool app!"
+    }
+)
 pg = st.navigation(pages)
 pg.run()
