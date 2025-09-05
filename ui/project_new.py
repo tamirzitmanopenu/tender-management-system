@@ -6,10 +6,6 @@ from settings.constants import FIELD_LABELS, PROJECT_REQUIRED_FORM_KEYS, PROJECT
     PROJECT_CREATION_FAILURE_TEXT, PROJECT_OTHER_UPLOAD_SUCCESS_TEXT, PROJECT_OTHER_UPLOAD_FAILURE_TEXT, ICON_PROJECTS
 from tools.helpers import get_label
 
-st.set_page_config(
-    page_icon=ICON_PROJECTS
-)
-
 st.header("פרויקט חדש")
 
 
@@ -52,7 +48,7 @@ if submitted:
 
     data = {"name": name, "deadline_date": str(deadline)}
     projects_resp = post("/projects", json=data)
-    if projects_resp.ok:
+    if getattr(projects_resp, "ok", False):
         st.success(PROJECT_CREATION_SUCCESS_TEXT.format(name=name))
     else:
         st.error(PROJECT_CREATION_FAILURE_TEXT)
@@ -65,14 +61,14 @@ if submitted:
         data = {"project_id": project_id, "file_type": PROJECT_FILE_TYPE_SKN}
         skn_file_resp = post("/files", files=files, data=data)
 
-        if skn_file_resp.ok:
+        if getattr(skn_file_resp, "ok", False):
             info = skn_file_resp.json()
             st.success(PROJECT_SKN_UPLOAD_SUCCESS_TEXT.format(filename=uploaded_skn.name))
 
             skn_file_id = info.get('file_id')
             with st.spinner(PROJECT_SKN_PROCESS_TEXT):
                 process_skn_resp = post(f"/files/{skn_file_id}/process-skn")
-                if process_skn_resp.ok:
+                if getattr(process_skn_resp, "ok", False):
                     st.success(PROJECT_SKN_PROCESS_SUCCESS_TEXT)
                 else:
                     st.error(PROJECT_SKN_PROCESS_FAILURE_TEXT)
@@ -86,7 +82,7 @@ if submitted:
         data = {"project_id": project_id, "file_type": file_type}
         resp = post("/files", files=files, data=data)
 
-        if resp.ok:
+        if getattr(resp, "ok", False):
             info = resp.json()
             st.success(PROJECT_OTHER_UPLOAD_SUCCESS_TEXT.format(filename=uploaded_other.name))
         else:

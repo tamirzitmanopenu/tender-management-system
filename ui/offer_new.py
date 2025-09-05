@@ -17,20 +17,19 @@ projects = fetch_projects()
 project_name = st.selectbox(SELECT_PROJECT, list(projects.keys()))
 project_id = projects.get(project_name)
 
-categories = fetch_categories()
+categories = fetch_categories(project_id=project_id)
 category_name = st.selectbox(OFFER_SELECT_CATEGORY, list(categories.keys()))
 category_id = categories.get(category_name)
+st.caption(f"מציג: {category_name}")
 
 tasks = fetch_tasks(project_id, category_id) if project_id and category_id else []
+if not tasks:
+    st.info("לא נמצאו משימות בקטגוריה זו")
+    st.stop()
 with st.container(border=True):
-    # Initialize session state for prices if not exists
-    if 'prices' not in st.session_state:
-        st.session_state.prices = {}
-
-
     # Function to update total price
-    def update_price(task_id, unit_price):
-        st.session_state.prices[task_id] = unit_price
+    def update_price(t_id, p):
+        st.session_state.prices[t_id] = p
 
 
     total_sum = 0.0

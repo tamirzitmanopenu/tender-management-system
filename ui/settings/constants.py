@@ -5,7 +5,8 @@ BASE_URL = "https://tendysys.pythonanywhere.com/api"
 DEV_BASE_URL = "http://127.0.0.1:5000/api"
 
 # Landing page
-WEBSITE_TITLE = "י ינקוביץ 🎈"
+WEBSITE_TITLE = "TendySys"
+WEBSITE_LOGO_PATH = r"ui\settings\yankovich_logo.png"
 WEBSITE_WELCOME_TEXT = "ברוכים הבאים למערכת המכרזים"
 
 # Project page
@@ -20,7 +21,6 @@ PROJECT_SKN_PROCESS_FAILURE_TEXT = "נכשל עיבוד הקובץ"
 PROJECT_OTHER_UPLOAD_SUCCESS_TEXT = "הועלה קובץ {filename}"
 PROJECT_OTHER_UPLOAD_FAILURE_TEXT = "נכשלה העלאת הקובץ"
 PROJECT_FILE_TYPE_SKN = "כתב כמויות"
-PROJECT_CATEGORY_SELECTION_TEXT = "בחר ספקים להפצת המכרז בקטגוריית: {category_name}"
 
 # Offer submission page
 OFFER_HEADER = "הגשת הצעה"
@@ -46,7 +46,7 @@ REPORTS_AI_ERROR = "שגיאה בקבלת המלצה. נסה שוב או בדו�
 
 # Navigation labels
 NAV_PROJECTS = "פרויקטים"
-NAV_SUPPLIERS = "ספקים"
+NAV_BUSINESSES = "עסקים"
 NAV_CATEGORIES = "קטגוריות"
 NAV_OFFERS = "הצעות"
 
@@ -63,6 +63,8 @@ ICON_OFFERS = ":material/local_offer:"
 ICON_MANAGE = ":material/settings:"
 ICON_NEW = ":material/add:"
 ICON_REPORTS = ":material/analytics:"  # גרף עמודות
+ICON_REFRESH = ":material/refresh:"
+
 
 FETCH_PROJECTS = "טוען פרויקטים"
 FETCH_CATEGORIES = "טוען קטגוריות"
@@ -73,6 +75,7 @@ FETCH_AI_RECOM = "טוען המלצת AI"
 
 SELECT_PROJECT = "בחר פרויקט"
 SELECT_CATEGORY = "בחר קטגוריה"
+SELECT_BUSINESSES = "בחר עסקים"
 
 FIELD_LABELS = {
     "new_project_name": "שם הפרויקט",

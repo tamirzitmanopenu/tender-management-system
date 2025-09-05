@@ -1,15 +1,13 @@
 import streamlit as st
 from tools.api import get, post
+from tools.fetch_data import fetch_categories
 
 st.header("ניהול קטגוריות")
 
+
 # List categories
-resp = get("/categories")
-if resp.ok:
-    cats = resp.json()
-    if cats:
-        st.dataframe(cats)
-    else:
-        st.info("אין קטגוריות")
+cats = fetch_categories()
+if cats:
+    st.dataframe(cats)
 else:
-    st.error("שגיאה בשליפת קטגוריות")
+    st.info("אין קטגוריות")

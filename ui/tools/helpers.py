@@ -4,78 +4,75 @@ from io import BytesIO
 import pandas as pd
 import streamlit as st
 
-from settings.constants import FIELD_LABELS, PROJECT_CATEGORY_SELECTION_TEXT
+from settings.constants import FIELD_LABELS, SELECT_BUSINESSES
 from tools.fetch_data import fetch_business, fetch_categories, fetch_business_category
 
-from tools.api import post
+from tools.add_data import register_business_category_selection, register_business_category
 
 
 # -- Streamlit related helpers --
-
 def business_category_selection(project_id: str):
-    business_category_ids = []
     all_business = fetch_business()
     categories = fetch_categories(project_id=project_id)
+    if not categories:
+        st.warning("לא נמצאו קטגוריות בפרויקט זה")
+        return
     with st.form("business_category_selection"):
         for category_name, category_id in categories.items():
             business_categories = fetch_business_category(category_id=category_id)
             businesses_list = all_business
-            # Business Category Selection:
+            st.caption(f"{category_name}")
+
+            # Business Selection:
+            key = f"bs_p{project_id}_c{category_id}"
             selected_businesses = st.multiselect(
-                label=PROJECT_CATEGORY_SELECTION_TEXT.format(category_name=category_name),
-                label_visibility="collapsed",
+                label=category_name,
+                label_visibility="hidden",
                 options=businesses_list,
-                key=f"category_selection_{category_id}",
+                key=key,
                 format_func=lambda x: x["company_name"],
-                placeholder=PROJECT_CATEGORY_SELECTION_TEXT.format(category_name=category_name)
+                placeholder=SELECT_BUSINESSES
             )
-            #TODO - continue working on it
-            selected_ids = [b["business_id"] for b in selected_businesses]
+
+            if selected_businesses:
+                st.session_state.business_selections[key] = selected_businesses
+
+            st.divider()
+
+        submitted = st.form_submit_button("הפצת מכרז", width="stretch")
+
+    if submitted:
+        business_category_items = []
+
+        for category_id in categories.values():
+            key = f"bs_p{project_id}_c{category_id}"
+            selected_businesses = st.session_state.business_selections.get(key, [])
+
+            business_categories = fetch_business_category(category_id=category_id)
+
             for business in selected_businesses:
                 business_id = business["business_id"]
-                business_category_id = None
-                for bc in business_categories:
-                    if bc["business_id"] == business_id:
-                        business_category_id = bc["business_category_id"]
-                        break  # no need to keep checking since only one can exist
+                business_category_id = next(
+                    (bc["business_category_id"] for bc in business_categories if bc["business_id"] == business_id),
+                    None
+                )
 
+                # Handle missing category association
                 if business_category_id is None:
-                    business_category_id = register_category_business(category_id, business_id)
-
-                business_category_ids.append(business_category_id)
-
-            st.write("Selected business IDs:", selected_ids)
-
-            # ################################################################################################
-            # # Example data
-            # businesses = [
-            #     {"business_id": 1, "business_name": "Alpha Corp"},
-            #     {"business_id": 2, "business_name": "Beta LLC"},
-            #     {"business_id": 3, "business_name": "Gamma Inc"},
-            # ]
-            #
-            # # Multiselect with format_func to display business_name
-            # selected_businesses = st.multiselect(
-            #     "Select businesses",
-            #     options=businesses,
-            #     format_func=lambda x: x["business_name"]
-            # )
-            #
-            # # Extract the business_id values from the selected dictionaries
-            # selected_ids = [b["business_id"] for b in selected_businesses]
-            #
-            # st.write("Selected business IDs:", selected_ids)
-            # ################################################################################################
-        submitted = st.form_submit_button("הפצת מכרז", use_container_width=True)
-    if submitted:
-        business_category_items: list[dict[str, str]] = []
-        # TODO: go over it again
-        data = {"project_id": project_id, "items": business_category_items}
-        bc_selection_resp = post("/businesses-category-selections", json=data)
-        if bc_selection_resp.ok:
-            st.success("succ123")
-        else:
-            st.error("err123")
+                    try:
+                        bc_resp = register_business_category(category_id, business_id)
+                        business_category_id = bc_resp.get("business_category_id")
+                    except Exception as e:
+                        st.error(e)
+                if business_category_id:
+                    business_category_items.append({
+                        "business_category_id": str(business_category_id),
+                    })
+        try:
+            bcs_resp = register_business_category_selection(project_id, business_category_items)
+            print(bcs_resp)
+        except Exception as e:
+            st.error(e)
             st.stop()
 
 
@@ -100,7 +97,7 @@ def show_ai_recom(ai_recom: dict):
                 .format({"מחיר כולל": fmt_money})
                 .highlight_min(subset=["מחיר כולל"], color="#d6f5d6")
             )
-            st.dataframe(styled, use_container_width=True)
+            st.dataframe(styled, width="stretch")
 
             # מטריקות מהירות (אם יש לפחות שתי שורות)
             if {"מחיר כולל", "ספק"}.issubset(df_comp.columns):
@@ -129,7 +126,7 @@ def show_ai_recom(ai_recom: dict):
         if not df_gaps.empty:
             if "פער_%" in df_gaps.columns:
                 df_gaps["פער_%"] = df_gaps["פער_%"].apply(fmt_pct)
-            st.dataframe(df_gaps, use_container_width=True)
+            st.dataframe(df_gaps, width="stretch")
         else:
             st.info("לא נמצאו פערי מחירים להצגה.")
 
@@ -157,7 +154,7 @@ def show_ai_recom(ai_recom: dict):
             # עיצוב המחיר אם קיים
             if "מחיר_ספק_מומלץ" in df_reco.columns:
                 df_reco["מחיר_ספק_מומלץ"] = df_reco["מחיר_ספק_מומלץ"].apply(fmt_money)
-            st.dataframe(df_reco, use_container_width=True)
+            st.dataframe(df_reco, width="stretch")
 
 
 def show_download_as_excel(ai_recom: dict):
