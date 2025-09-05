@@ -23,10 +23,9 @@ def log_event(message, username=None, level="INFO"):
 
 
 def require_params(*fields):
-    # look for query params first, then JSON body
-    data = request.args.to_dict() or {}
-    if not data:
-        data = request.get_json(silent=True) or {}
+    query_data = request.args.to_dict() or {}
+    body_data = request.get_json(silent=True) or {}
+    data = {**body_data, **query_data}
 
     missing = [f for f in fields if f not in data]
     if missing:
