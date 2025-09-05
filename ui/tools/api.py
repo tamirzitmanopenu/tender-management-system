@@ -11,14 +11,26 @@ else:
 
 def get(path: str, **kwargs):
     """Send a GET request to the backend"""
-    return requests.get(f"{base_url}{path}", **kwargs)
+    try:
+        return requests.get(f"{base_url}{path}", **kwargs)
+    except Exception as e:
+        print(e)
+        return None
 
 
 def post(path: str, **kwargs):
     """Send a POST request to the backend"""
-    return requests.post(f"{base_url}{path}", **kwargs)
+    try:
+        return requests.post(f"{base_url}{path}", **kwargs)
+    except Exception as e:
+        print(e)
+        return None
 
 
 def delete(path: str, **kwargs):
     """Send a DELETE request to the backend"""
-    return requests.delete(f"{base_url}{path}", **kwargs)
+    try:
+        return requests.delete(f"{base_url}{path}", **kwargs)
+    except Exception as e:
+        print(e)
+        return None
