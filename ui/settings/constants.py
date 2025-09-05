@@ -5,9 +5,8 @@ BASE_URL = "https://tendysys.pythonanywhere.com/api"
 DEV_BASE_URL = "http://127.0.0.1:5000/api"
 
 # Landing page
-WEBSITE_TITLE = "TendySys"
-WEBSITE_LOGO_PATH = r"ui\settings\yankovich_logo.png"
-WEBSITE_WELCOME_TEXT = "ברוכים הבאים למערכת המכרזים"
+WEBSITE_TITLE = "מערכת המכרזים - TendySys"
+WEBSITE_LOGO_PATH = "ui\\settings\\yankovich_logo.png"
 
 # Project page
 PROJECT_REQUIRED_FORM_KEYS = ['new_project_name', 'new_deadline', 'uploaded_skn']
@@ -46,8 +45,8 @@ REPORTS_AI_ERROR = "שגיאה בקבלת המלצה. נסה שוב או בדו�
 
 # Navigation labels
 NAV_PROJECTS = "פרויקטים"
-NAV_BUSINESSES = "עסקים"
-NAV_CATEGORIES = "קטגוריות"
+NAV_BUSINESSES = "קבלני משנה"
+NAV_CATEGORIES = "תחומים"
 NAV_OFFERS = "הצעות"
 
 PAGE_MANAGE = "ניהול"
@@ -75,7 +74,7 @@ FETCH_AI_RECOM = "טוען המלצת AI"
 
 SELECT_PROJECT = "בחר פרויקט"
 SELECT_CATEGORY = "בחר קטגוריה"
-SELECT_BUSINESSES = "סמן קבלני משנה בקטגוריה"
+SELECT_BUSINESSES = "בחר בקבלני משנה"
 
 FIELD_LABELS = {
     "new_project_name": "שם הפרויקט",

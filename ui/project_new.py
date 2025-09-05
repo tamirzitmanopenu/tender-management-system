@@ -32,8 +32,9 @@ with st.form("add_project"):
     name = st.text_input(get_label('new_project_name'), key='new_project_name')  # required
     deadline = st.date_input(get_label('new_deadline'), key='new_deadline')  # required
     uploaded_skn = st.file_uploader(get_label('uploaded_skn'), type='skn', key='uploaded_skn')  # required
-    uploaded_other = st.file_uploader(get_label('uploaded_other'), key='uploaded_other')
-    file_type = st.text_input(get_label('file_type'), key='file_type')
+    with st.expander(get_label('uploaded_other')):
+        uploaded_other = st.file_uploader(get_label('uploaded_other'), key='uploaded_other')
+        file_type = st.text_input(get_label('file_type'), key='file_type')
 
     submitted = st.form_submit_button(
         "שמור",

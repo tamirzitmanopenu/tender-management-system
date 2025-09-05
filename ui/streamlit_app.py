@@ -5,7 +5,6 @@ import streamlit as st
 from tools.design import set_rtl
 from settings.constants import (
     WEBSITE_TITLE,
-    WEBSITE_WELCOME_TEXT,
     NAV_PROJECTS,
     NAV_BUSINESSES,
     NAV_CATEGORIES,
@@ -33,18 +32,9 @@ set_rtl()
 
 init_session_state()
 
-col1, _, _, col4 = st.columns([0.8, 0.05, 0.05, 0.6])
-with col1:
-    st.image(WEBSITE_LOGO_PATH)
-with col4:
-    st.title(WEBSITE_TITLE)
-    st.caption(
-        f"{WEBSITE_WELCOME_TEXT}<br>{WEBSITE_TITLE} {env}",
-        unsafe_allow_html=True
-    )
+st.header(WEBSITE_TITLE)
+st.divider()
 
-if st.button("", icon=ICON_REFRESH, help="רענון נתונים"):
-    st.cache_data.clear()
 pages = {
     NAV_PROJECTS: [
         st.Page("project_new.py", title=PAGE_NEW, icon=ICON_NEW),
@@ -64,15 +54,10 @@ pages = {
     ],
 }
 
-st.set_page_config(
-    page_icon=ICON_OFFERS,
-    layout="centered",
-    menu_items={
-        'Get Help': 'https://www.extremelycoolapp.com/help',
-        'Report a bug': "https://www.extremelycoolapp.com/bug",
-        'About': "# This is a header. This is an *extremely* cool app!"
-    }
-)
+st.sidebar.image(WEBSITE_LOGO_PATH)
+if st.sidebar.button("", icon=ICON_REFRESH, help="רענון נתונים", width="stretch"):
+    st.cache_data.clear()
+st.sidebar.title(f"{env}")
 pg = st.navigation(pages)
 pg.run()
 
