@@ -6,7 +6,7 @@ DEV_BASE_URL = "http://127.0.0.1:5000/api"
 
 # Landing page
 WEBSITE_TITLE = "מערכת המכרזים - TendySys"
-WEBSITE_LOGO_PATH = "ui\\settings\\yankovich_logo.png"
+WEBSITE_LOGO_PATH = "ui/settings/yankovich_logo.png"
 
 # Project page
 PROJECT_REQUIRED_FORM_KEYS = ['new_project_name', 'new_deadline', 'uploaded_skn']
