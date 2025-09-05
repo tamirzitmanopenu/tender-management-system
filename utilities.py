@@ -22,8 +22,12 @@ def log_event(message, username=None, level="INFO"):
     )
 
 
-def require_json(*fields):
-    data = request.get_json(silent=True) or {}
+def require_params(*fields):
+    # look for query params first, then JSON body
+    data = request.args.to_dict() or {}
+    if not data:
+        data = request.get_json(silent=True) or {}
+
     missing = [f for f in fields if f not in data]
     if missing:
         return None, (jsonify({"error": f"Missing fields: {', '.join(missing)}"}), 400)

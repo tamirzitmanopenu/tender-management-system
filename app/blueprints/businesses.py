@@ -1,6 +1,6 @@
-from flask import Blueprint, jsonify, current_app, request
+from flask import Blueprint, jsonify, current_app
 
-from utilities import require_json, log_event
+from utilities import require_params, log_event, actor_from_headers
 
 bp = Blueprint("businesses", __name__)
 
@@ -8,7 +8,7 @@ bp = Blueprint("businesses", __name__)
 # Add a new business נתיב להוספת עסק חדש
 @bp.post("/businesses")
 def add_business():
-    data, err = require_json("company_name", "business_id")
+    data, err = require_params("company_name", "business_id")
     if err:
         return err
 
@@ -37,7 +37,7 @@ def list_businesses():
 
 @bp.post("/businesses-category-selections")
 def add_business_category_selection():
-    data, err = require_json("project_id", "items")
+    data, err = require_params("project_id", "items")
     if err:
         return err
 
@@ -79,11 +79,32 @@ def add_business_category_selection():
         return jsonify({"error": "Failed to create business category selections"}), 500
 
 
+@bp.get("/businesses-category-selections")
+def list_business_category_selection():
+    data, err = require_params()
+    if err:
+        return err
+
+    business_category_id = data.get("business_category_id", None)
+    project_id = data.get("project_id", None)
+
+    service = current_app.config["BusinessCategoryService"]
+    rows = service.get_business_category_selection(business_category_id, project_id)
+    return jsonify({
+        'status': 'success',
+        'data': rows
+    }), 200
+
+
 # Get business category מידע על דירוג ספק בקטגוריה
 @bp.get("/business-category")
 def get_business_category():
-    business_id = request.args.get("business_id", None)
-    category_id = request.args.get("category_id", None)
+    data, err = require_params()
+    if err:
+        return err
+
+    business_id = data.get("business_id", None)
+    category_id = data.get("category_id", None)
 
     service = current_app.config["BusinessCategoryService"]
     try:
@@ -95,3 +116,36 @@ def get_business_category():
     except Exception as e:
         log_event(f"[BusinessCategory][ERROR] Retrieval failed: {e}", level="ERROR")
         return jsonify({"error": "Failed to retrieve business category"}), 500
+
+
+@bp.post("/business-category")
+def add_business_category():
+    data, err = require_params("business_id", "category_id")
+    if err:
+        return err
+
+    rated_employee_username = actor_from_headers()
+
+    service = current_app.config["BusinessCategoryService"]
+
+    try:
+        business_category_id = service.insert_business_category(
+            business_id=data["business_id"],
+            category_id=data["category_id"],
+            rated_employee_username=rated_employee_username,
+            review=data.get("review"),
+            rating_score=data.get("rating_score"),
+            supplier_contact_username=data.get("supplier_contact_username"),
+        )
+
+        log_event(
+            f"BusinessCategory created for business_id={data['business_id']} and category_id={data['category_id']} → ID: {business_category_id}"
+        )
+
+        return jsonify({
+            "business_category_id": business_category_id
+        }), 201
+
+    except Exception as e:
+        log_event(f"[BusinessCategory][ERROR] Insertion failed: {e}", level="ERROR")
+        return jsonify({"error": "Failed to create business category"}), 500

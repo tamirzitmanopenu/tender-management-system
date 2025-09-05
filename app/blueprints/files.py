@@ -3,7 +3,7 @@ import os
 from flask import Blueprint, jsonify, send_from_directory, url_for, current_app
 from flask import request
 
-from utilities import log_event, actor_from_headers, require_json
+from utilities import log_event, actor_from_headers
 
 bp = Blueprint("files", __name__)
 
@@ -47,7 +47,7 @@ def store_file():
 def get_file(project_id: str):
     payload = []
     service = current_app.config["FileService"]
-    rows = service.get_file_records(project_id)
+    rows = service.get_files_by_project(project_id=project_id)
     if not rows:
         return jsonify({"error": f"Could not find file records for project_id {project_id}"}), 400
     for row in rows:
@@ -77,7 +77,7 @@ def process_skn(file_id: str):
     file_service = current_app.config["FileService"]
 
     # --- Fetch file record ---
-    row = file_service.get_file_record(file_id)
+    row = file_service.get_file_record(file_id=file_id)
     if not row:
         return jsonify({"error": f"Could not find file record for file_id {file_id}"}), 404
 

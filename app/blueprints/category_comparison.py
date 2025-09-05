@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, current_app
 
-from utilities import require_json
+from utilities import require_params
 
 bp = Blueprint("category_comparison_bp", __name__)
 
@@ -30,7 +30,7 @@ def get_category_comparison_details(project_id: int):
     Get detailed breakdown for a specific category and supplier
     """
     try:
-        data, err = require_json("business_category_id")
+        data, err = require_params("business_category_id")
         if err:
             return err
 
@@ -61,7 +61,7 @@ def get_category_comparison_details(project_id: int):
 @bp.post('/ai/recommendations')
 def get_ai_recommendation():
     try:
-        data, err = require_json("project_id", "category_id")
+        data, err = require_params("project_id", "category_id")
         if err:
             return err
 

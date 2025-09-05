@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS BusinessCategory (
     rated_employee_username TEXT,
     review TEXT,
     rating_score REAL,
-    supplier_contact TEXT,
+    supplier_contact TEXT DEFAULT NULL,
     FOREIGN KEY (business_id) REFERENCES Business(business_id),
     FOREIGN KEY (category_id) REFERENCES Category(category_id),
     FOREIGN KEY (rated_employee_username) REFERENCES Employee(username),

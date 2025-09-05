@@ -1,6 +1,6 @@
-from flask import Blueprint, jsonify, current_app, request
+from flask import Blueprint, jsonify, current_app
 
-from utilities import require_json, log_event, actor_from_headers
+from utilities import require_params, log_event, actor_from_headers
 
 bp = Blueprint("projects", __name__)
 
@@ -9,7 +9,7 @@ bp = Blueprint("projects", __name__)
 @bp.post("/projects")
 def add_project():
     service = current_app.config["ProjectService"]
-    data, err = require_json("name", "deadline_date")
+    data, err = require_params("name", "deadline_date")
     if err: return err
     created_by = actor_from_headers()
     project_id = service.insert_project(name=data["name"], created_by=created_by, deadline_date=data["deadline_date"])
@@ -50,10 +50,13 @@ def delete_project(project_id: str):
 # Get tasks
 @bp.get("/projects/project_tasks")
 def get_project_tasks_by_proj_and_catg():
-    service = current_app.config["ProjectTaskService"]
+    data, err = require_params()
+    if err:
+        return err
+    project_id = data.get("project_id")
+    category_id = data.get("category_id")
 
-    project_id = request.args.get("project_id")
-    category_id = request.args.get("category_id")
+    service = current_app.config["ProjectTaskService"]
 
     try:
         project_tasks = service.get_project_tasks(project_id, category_id)  # expected: list[dict] or []

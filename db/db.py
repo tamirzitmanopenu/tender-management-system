@@ -44,12 +44,16 @@ class Database:
             self._local_conn = None
 
     def query_one(self, sql, params=()):
+        print(f"SQL query is: {sql}")
+        print(f"Params are: {params}")
         cur = self._get_conn().execute(sql, params)
         row = cur.fetchone()
         cur.close()
         return row
 
     def query_all(self, sql, params=()):
+        print(f"SQL query is: {sql}")
+        print(f"Params are: {params}")
         cur = self._get_conn().execute(sql, params)
         rows = cur.fetchall()
         cur.close()
