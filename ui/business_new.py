@@ -12,7 +12,6 @@ if submitted:
     resp = register_business(company_name, business_id)
     if resp:
         st.success("העסק נוצר")
-        print(resp)
     else:
         st.error("נכשלה יצירת העסק")
         st.stop()
