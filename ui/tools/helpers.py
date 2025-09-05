@@ -6,11 +6,13 @@ import streamlit as st
 
 from settings.constants import FIELD_LABELS, SELECT_BUSINESSES
 from tools.fetch_data import fetch_business, fetch_categories, fetch_business_category
-
 from tools.add_data import register_business_category_selection, register_business_category
+
+from tools.api import delete, get
 
 
 # -- Streamlit related helpers --
+@st.dialog("הקצאת עסקים לקטגוריות")
 def business_category_selection(project_id: str):
     all_business = fetch_business()
     categories = fetch_categories(project_id=project_id)
@@ -19,19 +21,27 @@ def business_category_selection(project_id: str):
         return
     with st.form("business_category_selection"):
         for category_name, category_id in categories.items():
-            business_categories = fetch_business_category(category_id=category_id)
-            businesses_list = all_business
+            # show first businesses that work at this category, followed by the rest
+            business_category_dicts = fetch_business_category(category_id=category_id)
+            business_ids_in_category = {b['business_id'] for b in business_category_dicts}
+
+            # Separate businesses into two groups
+            in_category = [b for b in all_business if b['business_id'] in business_ids_in_category]
+            not_in_category = [b for b in all_business if b['business_id'] not in business_ids_in_category]
+
+            # Combine the lists: show in-category businesses first
+            businesses_list = in_category + not_in_category
+
             st.caption(f"{category_name}")
 
             # Business Selection:
             key = f"bs_p{project_id}_c{category_id}"
-            selected_businesses = st.multiselect(
-                label=category_name,
-                label_visibility="hidden",
+            selected_businesses = st.pills(
+                label=SELECT_BUSINESSES,
                 options=businesses_list,
                 key=key,
                 format_func=lambda x: x["company_name"],
-                placeholder=SELECT_BUSINESSES
+                selection_mode="multi"
             )
 
             if selected_businesses:
@@ -39,7 +49,7 @@ def business_category_selection(project_id: str):
 
             st.divider()
 
-        submitted = st.form_submit_button("הפצת מכרז", width="stretch")
+        submitted = st.form_submit_button("הפצת מכרז", width="stretch", type="primary")
 
     if submitted:
         business_category_items = []
@@ -74,6 +84,35 @@ def business_category_selection(project_id: str):
         except Exception as e:
             st.error(e)
             st.stop()
+
+
+@st.dialog("מחיקה")
+def project_del(proj_id):
+    reason = st.text_input("כתוב את סיבת המחיקה")
+    # Delete project
+    if st.button("מחק", type='primary') and proj_id:
+        del_resp = delete(f"/projects/{proj_id}")
+        if del_resp.ok:
+            st.success("הפרויקט נמחק")
+        else:
+            st.error("נכשלה מחיקת הפרויקט")
+        st.rerun()
+
+
+@st.dialog("קבצי פרויקט")
+def project_files(proj_id: str):
+    # Get project files data
+    proj_resp = get(f"/files/{proj_id}")
+    files = proj_resp.json()
+    # Filter only files that contain both keys
+    valid_files = [f for f in files if 'download_url' in f and 'file_type' in f]
+
+    if not valid_files:
+        st.warning("אין קבצים להצגה")
+        return
+
+    for file_data in valid_files:
+        st.markdown(f" הורד קובץ {file_data['file_type']} [כאן]({file_data['download_url']}) ")
 
 
 def show_ai_recom(ai_recom: dict):

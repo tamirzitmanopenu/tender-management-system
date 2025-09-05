@@ -75,7 +75,7 @@ FETCH_AI_RECOM = "טוען המלצת AI"
 
 SELECT_PROJECT = "בחר פרויקט"
 SELECT_CATEGORY = "בחר קטגוריה"
-SELECT_BUSINESSES = "בחר עסקים"
+SELECT_BUSINESSES = "סמן קבלני משנה בקטגוריה"
 
 FIELD_LABELS = {
     "new_project_name": "שם הפרויקט",

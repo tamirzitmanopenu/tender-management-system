@@ -1,40 +1,10 @@
 import streamlit as st
-from tools.api import get, delete
 from tools.helpers import business_category_selection
-from settings.constants import ICON_PROJECTS, SELECT_PROJECT
+from settings.constants import SELECT_PROJECT
 from tools.fetch_data import fetch_projects
+from tools.helpers import project_del, project_files
 
-st.header("ניהול פרויקטים")
-
-
-@st.dialog("מחיקה")
-def project_del(proj_id):
-    reason = st.text_input("כתוב את סיבת המחיקה")
-    # Delete project
-    if st.button("מחק", type='primary') and proj_id:
-        del_resp = delete(f"/projects/{proj_id}")
-        if del_resp.ok:
-            st.success("הפרויקט נמחק")
-        else:
-            st.error("נכשלה מחיקת הפרויקט")
-        st.rerun()
-
-
-@st.dialog("קבצי פרויקט")
-def project_files(proj_id: str):
-    # Get project files data
-    proj_resp = get(f"/files/{proj_id}")
-    files = proj_resp.json()
-    # Filter only files that contain both keys
-    valid_files = [f for f in files if 'download_url' in f and 'file_type' in f]
-
-    if not valid_files:
-        st.warning("אין קבצים להצגה")
-        return
-
-    for file_data in valid_files:
-        st.markdown(f" הורד קובץ {file_data['file_type']} [כאן]({file_data['download_url']}) ")
-
+st.header("פרויקטים")
 
 with st.container(border=True):
     projects = fetch_projects()
@@ -46,9 +16,11 @@ with st.container(border=True):
             if st.button("קבצי פרויקט", width="stretch"):
                 project_files(project_id)
         with c2:
-            if st.button("מחיקה", width="stretch", type="primary"):
+            if st.button("מחיקה", width="stretch"):
                 project_del(project_id)
-        with st.expander(label="הקצאת קבלני משנה לפריוקט"):
+        if st.button(label="הקצאת קבלני משנה לפריוקט", width="stretch", type="primary"):
             business_category_selection(project_id)
+
+
     else:
         st.info("לא נמצאו פרויקטים במערכת")

@@ -1,7 +1,7 @@
 import streamlit as st
 from tools.fetch_data import fetch_business
 
-st.header("ניהול עסקים")
+st.header("עסקים")
 
 suppliers = fetch_business()
 if suppliers:

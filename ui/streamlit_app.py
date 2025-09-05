@@ -43,12 +43,8 @@ with col4:
         unsafe_allow_html=True
     )
 
-c1, c2, c3, c4 = st.columns([0.8, 0.05, 0.05, 0.9])
-
-with c4:
-    if st.button("", width="stretch", icon=ICON_REFRESH, help="רענון נתונים"):
-        st.cache_data.clear()
-
+if st.button("", icon=ICON_REFRESH, help="רענון נתונים"):
+    st.cache_data.clear()
 pages = {
     NAV_PROJECTS: [
         st.Page("project_new.py", title=PAGE_NEW, icon=ICON_NEW),
@@ -79,3 +75,6 @@ st.set_page_config(
 )
 pg = st.navigation(pages)
 pg.run()
+
+st.divider()
+# footer

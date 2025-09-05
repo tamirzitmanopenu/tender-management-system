@@ -2,7 +2,7 @@ import streamlit as st
 from tools.api import get, post
 from tools.fetch_data import fetch_categories
 
-st.header("ניהול קטגוריות")
+st.header("קטגוריות")
 
 
 # List categories
