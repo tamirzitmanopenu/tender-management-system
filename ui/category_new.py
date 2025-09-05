@@ -11,5 +11,9 @@ if submitted:
     resp = post("/categories", json={"category_name": name})
     if resp.ok:
         st.success("הקטגוריה נוספה")
+    elif resp.status_code == 409:
+        st.warning("הקטגוריה כבר קיימת")
     else:
         st.error("נכשלה הוספת הקטגוריה")
+        st.stop()
+

@@ -36,8 +36,11 @@ class FileService:
             (storage_name, uploaded_by, file_type, storage_path, now_iso(), project_id)
         )
 
+    def get_files_by_project(self, project_id: str):
+        # שליפת רשומות קבצים מבסיס הנתונים לפי מזהה פרויקט
+        return self.db.get_table_record(table='File', filters={'project_id': project_id})
+
     def get_file_record(self, file_id: str):
-        # שליפת רשומת קובץ מבסיס הנתונים לפי מזהה הקובץ
         return self.db.get_table_record(table='File', filters={'file_id': file_id}, query_one_only=True)
 
     @staticmethod

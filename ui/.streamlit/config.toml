@@ -1,0 +1,54 @@
+# .streamlit/config.toml
+[server]
+runOnSave = true
+showEmailPrompt = false
+maxUploadSize = 20
+
+[theme]
+base = "light"
+primaryColor = "#1DD6C4"                # teal from logo
+backgroundColor = "#FFFFFF"             # white main background
+secondaryBackgroundColor = "#F2FBFA"    # very light teal-tinted background
+textColor = "#212121"                   # dark gray text
+linkColor = "#00B7A3"                   # teal link color
+linkUnderline = false
+codeBackgroundColor = "#F1F9F8"
+font = "Segoe UI"
+baseRadius = "0.5rem"
+buttonRadius = "1rem"
+borderColor = "#D9E6E5"
+dataframeBorderColor = "#C1E7E5"
+dataframeHeaderBackgroundColor = "#E5FAF8"
+showWidgetBorder = true
+showSidebarBorder = false
+
+chartCategoricalColors = [
+    "#1DD6C4", "#00B7A3", "#26C6DA", "#FFA726", "#EF5350",
+    "#AB47BC", "#42A5F5", "#FF7043", "#78909C", "#D4E157"
+]
+
+chartSequentialColors = [
+    "#E5FAF8", "#CCF4F0", "#B2EFE9", "#99E9E2", "#7FE4DA",
+    "#66DED3", "#4CD9CB", "#33D3C4", "#1DD6C4", "#00B7A3"
+]
+
+[theme.sidebar]
+primaryColor = "#00B7A3"
+backgroundColor = "#F9FFFF"
+secondaryBackgroundColor = "#E5FAF8"
+textColor = "#004D47"
+linkColor = "#00B7A3"
+linkUnderline = false
+codeBackgroundColor = "#E1F5F3"
+font = "sans-serif"
+headingFont = "serif"
+headingFontSizes = ["1.5rem", "1.25rem", "1.125rem", "1rem", "0.875rem", "0.75rem"]
+headingFontWeights = [700, 600, 600, 600, 600, 600]
+codeFont = "monospace"
+codeFontSize = "0.75rem"
+baseRadius = "0.5rem"
+buttonRadius = "1rem"
+borderColor = "#B2EFE9"
+dataframeBorderColor = "#99E9E2"
+dataframeHeaderBackgroundColor = "#CCF4F0"
+showWidgetBorder = true

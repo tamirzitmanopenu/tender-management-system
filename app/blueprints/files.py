@@ -3,7 +3,7 @@ import os
 from flask import Blueprint, jsonify, send_from_directory, url_for, current_app
 from flask import request
 
-from utilities import log_event, actor_from_headers, require_json
+from utilities import log_event, actor_from_headers
 
 bp = Blueprint("files", __name__)
 
@@ -42,20 +42,22 @@ def store_file():
     }), 201
 
 
-# Get file metadata and download URL קבלת מטא-נתונים של קובץ וקישור להורדה
-@bp.get("/files/<file_id>")
-def get_file(file_id: str):
+# Get files metadata and download URL קבלת מטא-נתונים של קובץ וקישור להורדה
+@bp.get("/files/<project_id>")
+def get_file(project_id: str):
+    payload = []
     service = current_app.config["FileService"]
-    row = service.get_file_record(file_id)
-    if not row:
-        return jsonify({"error": f"Could not find file record for file_id {file_id}"}), 400
-
-    return jsonify({
-        "file_id": file_id,
-        "file_name": row["name"],
-        "file_type": row["file_type"],
-        "download_url": url_for("files.download_file", filename=row["name"], _external=True)
-    })
+    rows = service.get_files_by_project(project_id=project_id)
+    if not rows:
+        return jsonify({"error": f"Could not find file records for project_id {project_id}"}), 400
+    for row in rows:
+        payload.append({
+            "file_id": row["file_id"],
+            "file_name": row["name"],
+            "file_type": row["file_type"],
+            "download_url": url_for("files.download_file", filename=row["name"], _external=True)
+        })
+    return jsonify(payload), 200
 
 
 # Download a file הורדת קובץ
@@ -75,7 +77,7 @@ def process_skn(file_id: str):
     file_service = current_app.config["FileService"]
 
     # --- Fetch file record ---
-    row = file_service.get_file_record(file_id)
+    row = file_service.get_file_record(file_id=file_id)
     if not row:
         return jsonify({"error": f"Could not find file record for file_id {file_id}"}), 404
 

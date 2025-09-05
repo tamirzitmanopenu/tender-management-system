@@ -44,18 +44,24 @@ class Database:
             self._local_conn = None
 
     def query_one(self, sql, params=()):
+        print(f"SQL query is: {sql}")
+        print(f"Params are: {params}")
         cur = self._get_conn().execute(sql, params)
         row = cur.fetchone()
         cur.close()
         return row
 
     def query_all(self, sql, params=()):
+        print(f"SQL query is: {sql}")
+        print(f"Params are: {params}")
         cur = self._get_conn().execute(sql, params)
         rows = cur.fetchall()
         cur.close()
         return rows
 
     def execute(self, sql, params=()):
+        print(f"SQL query is: {sql}")
+        print(f"Params are: {params}")
         conn = self._get_conn()
         cur = conn.execute(sql, params)
         conn.commit()
@@ -121,7 +127,6 @@ class Database:
                     conditions.append(f"{field} = ?")
                 params.append(value)
             sql += " WHERE " + " AND ".join(conditions)
-
         return self.execute(sql, tuple(params))
 
     def update_table_record(self, table: str, updates: dict,

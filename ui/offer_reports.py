@@ -21,10 +21,6 @@ projects = fetch_projects()
 project_name = st.selectbox(SELECT_PROJECT, list(projects.keys()))
 project_id = projects.get(project_name)
 
-# Initialize session state
-if "comparison_data" not in st.session_state:
-    st.session_state["comparison_data"] = None
-
 # Fetch comparison data
 if st.button(REPORTS_FETCH_BTN) and project_id:
     st.session_state["comparison_data"] = fetch_comparison(project_id)
@@ -55,10 +51,9 @@ if comparison_data:
         categories = fetch_categories()
         category_id = categories.get(selected_category)
 
-
         if less_than_two_offers:
             st.info(REPORTS_AI_BTN_HELP)
-        submitted = st.form_submit_button(REPORTS_AI_BTN_TEXT, disabled=less_than_two_offers)
+        submitted = st.form_submit_button(REPORTS_AI_BTN_TEXT, disabled=less_than_two_offers, width="stretch")
 
         if submitted:
 

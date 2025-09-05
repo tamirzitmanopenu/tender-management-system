@@ -1,6 +1,6 @@
-from flask import Blueprint, jsonify, current_app, request
+from flask import Blueprint, jsonify, current_app
 
-from utilities import require_json, log_event, actor_from_headers
+from utilities import require_params, log_event, actor_from_headers
 
 bp = Blueprint("offers", __name__)
 
@@ -9,7 +9,7 @@ bp = Blueprint("offers", __name__)
 def add_offer():
     service = current_app.config["OfferService"]
 
-    data, err = require_json("project_id", "business_category_id", "items")
+    data, err = require_params("project_id", "business_category_id", "items")
     if err:
         return err
 

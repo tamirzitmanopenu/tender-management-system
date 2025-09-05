@@ -4,8 +4,117 @@ from io import BytesIO
 import pandas as pd
 import streamlit as st
 
+from settings.constants import FIELD_LABELS, SELECT_BUSINESSES
+from tools.fetch_data import fetch_business, fetch_categories, fetch_business_category
+from tools.add_data import register_business_category_selection, register_business_category
+
+from tools.api import delete, get
+
 
 # -- Streamlit related helpers --
+@st.dialog("הקצאת עסקים לקטגוריות")
+def business_category_selection(project_id: str):
+    all_business = fetch_business()
+    categories = fetch_categories(project_id=project_id)
+    if not categories:
+        st.warning("לא נמצאו קטגוריות בפרויקט זה")
+        return
+    with st.form("business_category_selection"):
+        for category_name, category_id in categories.items():
+            # show first businesses that work at this category, followed by the rest
+            business_category_dicts = fetch_business_category(category_id=category_id)
+            business_ids_in_category = {b['business_id'] for b in business_category_dicts}
+
+            # Separate businesses into two groups
+            in_category = [b for b in all_business if b['business_id'] in business_ids_in_category]
+            not_in_category = [b for b in all_business if b['business_id'] not in business_ids_in_category]
+
+            # Combine the lists: show in-category businesses first
+            businesses_list = in_category + not_in_category
+
+            st.caption(f"{category_name}")
+
+            # Business Selection:
+            key = f"bs_p{project_id}_c{category_id}"
+            selected_businesses = st.pills(
+                label=SELECT_BUSINESSES,
+                options=businesses_list,
+                key=key,
+                format_func=lambda x: x["company_name"],
+                selection_mode="multi"
+            )
+
+            if selected_businesses:
+                st.session_state.business_selections[key] = selected_businesses
+
+            st.divider()
+
+        submitted = st.form_submit_button("הפצת מכרז", width="stretch", type="primary")
+
+    if submitted:
+        business_category_items = []
+
+        for category_id in categories.values():
+            key = f"bs_p{project_id}_c{category_id}"
+            selected_businesses = st.session_state.business_selections.get(key, [])
+
+            business_categories = fetch_business_category(category_id=category_id)
+
+            for business in selected_businesses:
+                business_id = business["business_id"]
+                business_category_id = next(
+                    (bc["business_category_id"] for bc in business_categories if bc["business_id"] == business_id),
+                    None
+                )
+
+                # Handle missing category association
+                if business_category_id is None:
+                    try:
+                        bc_resp = register_business_category(category_id, business_id)
+                        business_category_id = bc_resp.get("business_category_id")
+                    except Exception as e:
+                        st.error(e)
+                if business_category_id:
+                    business_category_items.append({
+                        "business_category_id": str(business_category_id),
+                    })
+        try:
+            bcs_resp = register_business_category_selection(project_id, business_category_items)
+            print(bcs_resp)
+        except Exception as e:
+            st.error(e)
+            st.stop()
+
+
+@st.dialog("מחיקה")
+def project_del(proj_id):
+    reason = st.text_input("כתוב את סיבת המחיקה")
+    # Delete project
+    if st.button("מחק", type='primary') and proj_id:
+        del_resp = delete(f"/projects/{proj_id}")
+        if del_resp.ok:
+            st.success("הפרויקט נמחק")
+        else:
+            st.error("נכשלה מחיקת הפרויקט")
+        st.rerun()
+
+
+@st.dialog("קבצי פרויקט")
+def project_files(proj_id: str):
+    # Get project files data
+    proj_resp = get(f"/files/{proj_id}")
+    files = proj_resp.json()
+    # Filter only files that contain both keys
+    valid_files = [f for f in files if 'download_url' in f and 'file_type' in f]
+
+    if not valid_files:
+        st.warning("אין קבצים להצגה")
+        return
+
+    for file_data in valid_files:
+        st.markdown(f" הורד קובץ {file_data['file_type']} [כאן]({file_data['download_url']}) ")
+
+
 def show_ai_recom(ai_recom: dict):
     # show_download_as_excel(ai_recom)
 
@@ -27,7 +136,7 @@ def show_ai_recom(ai_recom: dict):
                 .format({"מחיר כולל": fmt_money})
                 .highlight_min(subset=["מחיר כולל"], color="#d6f5d6")
             )
-            st.dataframe(styled, use_container_width=True)
+            st.dataframe(styled, width="stretch")
 
             # מטריקות מהירות (אם יש לפחות שתי שורות)
             if {"מחיר כולל", "ספק"}.issubset(df_comp.columns):
@@ -56,7 +165,7 @@ def show_ai_recom(ai_recom: dict):
         if not df_gaps.empty:
             if "פער_%" in df_gaps.columns:
                 df_gaps["פער_%"] = df_gaps["פער_%"].apply(fmt_pct)
-            st.dataframe(df_gaps, use_container_width=True)
+            st.dataframe(df_gaps, width="stretch")
         else:
             st.info("לא נמצאו פערי מחירים להצגה.")
 
@@ -84,7 +193,7 @@ def show_ai_recom(ai_recom: dict):
             # עיצוב המחיר אם קיים
             if "מחיר_ספק_מומלץ" in df_reco.columns:
                 df_reco["מחיר_ספק_מומלץ"] = df_reco["מחיר_ספק_מומלץ"].apply(fmt_money)
-            st.dataframe(df_reco, use_container_width=True)
+            st.dataframe(df_reco, width="stretch")
 
 
 def show_download_as_excel(ai_recom: dict):
@@ -102,6 +211,10 @@ def show_download_as_excel(ai_recom: dict):
 
 
 # -- Util helpers --
+def get_label(key):
+    return FIELD_LABELS.get(key, key)
+
+
 def to_excel_download(df):
     # Function to convert dataframe to Excel bytes
     output = BytesIO()

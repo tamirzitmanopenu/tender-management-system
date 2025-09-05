@@ -1,53 +1,26 @@
 import streamlit as st
-from tools.api import get, delete
+from tools.helpers import business_category_selection
+from settings.constants import SELECT_PROJECT
+from tools.fetch_data import fetch_projects
+from tools.helpers import project_del, project_files
 
-st.header("ניהול פרויקטים")
+st.header("פרויקטים")
 
-projects = None
-
-# List projects
-resp = get("/projects")
-if resp.ok:
-    projects = resp.json()
+with st.container(border=True):
+    projects = fetch_projects()
     if projects:
-        st.dataframe(projects)
+        project_name = st.selectbox(SELECT_PROJECT, list(projects.keys()))
+        project_id = projects.get(project_name)
+        c1, c2 = st.columns(2)
+        with c1:
+            if st.button("קבצי פרויקט", width="stretch"):
+                project_files(project_id)
+        with c2:
+            if st.button("מחיקה", width="stretch"):
+                project_del(project_id)
+        if st.button(label="הקצאת קבלני משנה לפריוקט", width="stretch", type="primary"):
+            business_category_selection(project_id)
+
+
     else:
-        st.info("אין פרויקטים")
-else:
-    st.error("שגיאה בקריאת פרויקטים")
-
-
-@st.dialog("נהל פרויקט")
-def project_mng(project):
-    project_id = project['project_id']
-
-    # Get project files data
-    st.title("קבצי פרויקט")
-    proj_resp = get(f"/files/{project_id}")
-    file_data = proj_resp.json()
-    if file_data:
-        if 'download_url' in file_data and 'file_type' in file_data:
-            st.markdown(f" הורד קובץ {file_data['file_type']} [כאן]({file_data['download_url']}) ")
-    else:
-        st.info("אין קבצים להצגה")
-
-    st.divider()
-    st.title("מחיקה")
-    reason = st.text_input("כתוב את סיבת המחיקה")
-    # Delete project
-    if st.button(f" מחק את: {project['name']}") and project_id:
-        del_resp = delete(f"/projects/{project_id}")
-        if del_resp.ok:
-            st.success("הפרויקט נמחק")
-        else:
-            st.error("נכשלה מחיקת הפרויקט")
-        st.rerun()
-
-
-
-
-if projects is not None:
-    st.write("בחר פרויקט")
-    for proj in projects:
-        if st.button(proj['name']):
-            project_mng(proj)
+        st.info("לא נמצאו פרויקטים במערכת")

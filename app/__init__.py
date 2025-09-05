@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask
+from flask_cors import CORS
 
 from db.db import get_db
 from .services.ai_recommendation_service import AIRecommendationService
@@ -24,6 +25,9 @@ from .blueprints.category_comparison import bp as category_comparison_bp
 def create_app():
     app = Flask(__name__)
 
+    # Allow frontend at localhost:8501 (Streamlit) to access this backend for dev purposes
+    CORS(app, resources={r"/api/*": {"origins": "http://localhost:8501"}})
+
     # blueprints
     app.register_blueprint(businesses_bp, url_prefix="/api")
     app.register_blueprint(categories_bp, url_prefix="/api")
@@ -44,7 +48,6 @@ def create_app():
     app.config['OfferService'] = OfferService(repo)
     app.config['CategoryComparisonService'] = CategoryComparisonService(repo)
     app.config['AIRecommendationService'] = AIRecommendationService(repo)
-
 
     upload_folder = os.path.join(os.path.dirname(__file__), "uploads")
     os.makedirs(upload_folder, exist_ok=True)
