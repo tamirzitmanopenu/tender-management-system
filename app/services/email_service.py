@@ -4,6 +4,7 @@ import ssl
 import logging
 from datetime import datetime
 from email.message import EmailMessage
+from pathlib import Path
 from typing import Optional, List, Union, Dict, Any
 
 class EmailService:
@@ -87,9 +88,9 @@ class EmailService:
 
     def send_email(
             self,
-            recipient: Union[str, List[str]],
             subject: str,
             content: str,
+            recipient: Union[str, List[str]] = None,
             content_type: str = "plain",
             sender_name: Optional[str] = None,
             cc: Optional[Union[str, List[str]]] = None,
@@ -114,9 +115,6 @@ class EmailService:
         """
         start_time = datetime.now()
 
-        # Validate inputs
-        if not recipient or not subject or content is None:
-            raise ValueError("Recipient, subject, and content are required")
 
         # Normalize email lists
         recipients = self._normalize_emails(recipient)
@@ -124,8 +122,13 @@ class EmailService:
         bcc_list = self._normalize_emails(bcc)
         all_recipients = recipients + cc_list + bcc_list
 
-        if not recipients:
+        if not all_recipients:
             raise ValueError("At least one valid recipient is required")
+
+        # Validate inputs
+        if not all_recipients or not subject or content is None:
+            raise ValueError("Recipient, subject, and content are required")
+
 
         # Set default sender name
         sender_name = sender_name or "מערכת המכרזים TendySys"
@@ -270,6 +273,30 @@ class EmailService:
                   )
             return False
 
+    def resolve_email_template(self, template_id: str) -> str:
+        """Returns the html according to template_id (file name)"""
+
+        # Get the directory of the current script (absolute path)
+        base_dir = Path(__file__).resolve().parent
+
+        # Navigate to the templates folder reliably
+        template_dir = base_dir / "email_templates"
+
+        # Use this to construct the template path
+        template_path = template_dir / f"{template_id}.html"
+
+        print(f"Resolved template_path: {template_path}")
+
+        if not template_path.exists():
+            raise FileNotFoundError(f"Template '{template_id}' not found")
+
+        # Read and return the HTML content
+        try:
+            with open(template_path, 'r', encoding='utf-8') as file:
+                return file.read()
+        except Exception as e:
+            raise RuntimeError(f"Error reading template '{template_id}': {str(e)}")
+
 
 # Example usage:
 if __name__ == "__main__":
@@ -286,124 +313,15 @@ if __name__ == "__main__":
         print("Email service is ready!")
 
         # Send single email
-        subject = "מכרז חדש: הגש הצעה"
+        subject = "מכרז מחברת י. ינקוביץ: הגש הצעה"
+        template_id = 'request_offer'
 
-        offer_email_html = """
-        <!doctype html>
-        <html lang="he" dir="rtl">
-          <head>
-            <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-            <meta name="viewport" content="width=device-width">
-            <title>מכרז חדש: הגש הצעה</title>
-            <!-- פריהדר (טקסט תצוגה מקדימה בתיבת הדואר) -->
-            <style>
-              .preheader { display:none !important; visibility:hidden; opacity:0; color:transparent; height:0; width:0; overflow:hidden; mso-hide:all; }
-              /* סגנונות בסיסיים לתאימות רחבה */
-              body { margin:0; padding:0; background:#f5f7fa; }
-              table { border-spacing:0; border-collapse:collapse; }
-              img { border:0; line-height:100%; outline:none; text-decoration:none; }
-              a { text-decoration:none; }
-              .btn { background:#2563eb; color:#ffffff !important; padding:14px 24px; border-radius:8px; display:inline-block; font-weight:700; }
-              .btn:hover { filter: brightness(1.05); }
-              .container { width:100%; max-width:640px; margin:0 auto; }
-              .card { background:#ffffff; border-radius:12px; box-shadow:0 2px 6px rgba(0,0,0,0.06); }
-              .muted { color:#6b7280; }
-              .small { font-size:13px; }
-              @media screen and (max-width:600px) {
-                .p-32 { padding:20px !important; }
-              }
-            </style>
-          </head>
-          <body style="direction:rtl; font-family: 'Segoe UI',Tahoma,Arial,Helvetica,sans-serif; color:#111827;">
-            <span class="preheader">זוהי בקשה להגשת הצעה במערכת TendySys – לחץ/י כדי להגיש.</span>
-
-            <table role="presentation" class="container" width="100%" aria-hidden="true">
-              <tr><td style="height:24px">&nbsp;</td></tr>
-              <tr>
-                <td>
-                  <table role="presentation" width="100%" class="card">
-                    <tr>
-                      <td class="p-32" style="padding:32px;">
-                        <!-- כותרת -->
-                        <h1 style="margin:0 0 10px; font-size:24px; line-height:1.3;">מכרז חדש: הגש/י הצעה</h1>
-                        <p class="muted" style="margin:0 0 24px; line-height:1.7;">
-                          שלום,
-                          <br>
-                          זוהי הזמנה להגשת הצעה למכרז חדש במערכת <strong>TendySys</strong>.
-                        </p>
-
-                        <!-- פרטי מכרז - אופציונלי: החלף משתנים אם יש -->
-                        <table role="presentation" width="100%" style="margin:0 0 20px;">
-                          <tr>
-                            <td class="muted small" style="padding:0 0 6px;">
-                              <strong>שם המכרז:</strong> {{tender_name|שם המכרז}}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td class="muted small" style="padding:0 0 6px;">
-                              <strong>מזהה:</strong> {{tender_id|—}}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td class="muted small" style="padding:0 0 6px;">
-                              <strong>מועד אחרון להגשה:</strong> {{deadline|—}}
-                            </td>
-                          </tr>
-                        </table>
-
-                        <!-- קריאה לפעולה -->
-                        <table role="presentation" cellpadding="0" cellspacing="0">
-                          <tr>
-                            <td>
-                              <a class="btn" href="https://tendysys.streamlit.app/offer_new" target="_blank" rel="noopener">
-                                להגשת הצעה במערכת
-                              </a>
-                            </td>
-                          </tr>
-                        </table>
-
-                        <!-- טקסט עזר -->
-                        <p class="small muted" style="margin:20px 0 0; line-height:1.7;">
-                          אם הכפתור לא נפתח, ניתן להעתיק את הקישור ולהדביק בדפדפן:
-                          <br>
-                          <a href="https://tendysys.streamlit.app/offer_new" target="_blank" style="word-break:break-all;">
-                            https://tendysys.streamlit.app/offer_new
-                          </a>
-                        </p>
-
-                        <!-- הערות ותמיכה (אופציונלי) -->
-                        <p class="small muted" style="margin:16px 0 0;">
-                          אנא ודא/י שההצעה כוללת את כל המסמכים הנדרשים לפני שליחה.
-                        </p>
-
-                        <hr style="border:none; border-top:1px solid #e5e7eb; margin:24px 0;">
-
-                        <!-- חתימה -->
-                        <p class="small muted" style="margin:0;">
-                          תודה, <br>
-                          צוות TendySys
-                        </p>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
-              <tr><td style="height:24px">&nbsp;</td></tr>
-              <tr>
-                <td class="small muted" style="text-align:center;">
-                  הודעה זו נשלחה אליך מאת מערכת TendySys.
-                </td>
-              </tr>
-              <tr><td style="height:24px">&nbsp;</td></tr>
-            </table>
-          </body>
-        </html>
-        """
+        offer_email_html = email_service.resolve_email_template(template_id=template_id)
 
         try:
 
             success = email_service.send_email(
-                recipient=["tamirzitman@gmail.com","yuvalsayag2@gmail.com"],
+                bcc=["tamirzitman@gmail.com", "yuvalsayag2@gmail.com"],
                 subject=subject,
                 content=offer_email_html,
                 content_type="html"
