@@ -47,16 +47,14 @@ def create_app():
     app.config['BusinessCategoryService'] = BusinessCategoryService(repo)
     app.config['CategoryService'] = CategoryService(repo)
     app.config['ProjectService'] = ProjectService(repo)
-    app.config['FileService'] = FileService(repo)
+    upload_folder = os.path.join(os.path.dirname(__file__), "uploads")
+    app.config['FileService'] = FileService(db=repo, upload_folder=upload_folder)
     app.config['ProjectTaskService'] = ProjectTaskService(repo)
     app.config['OfferService'] = OfferService(repo)
     app.config['CategoryComparisonService'] = CategoryComparisonService(repo)
     app.config['AIRecommendationService'] = AIRecommendationService(repo)
-    app.config['EmailService'] = EmailService(repo)
-
-    upload_folder = os.path.join(os.path.dirname(__file__), "uploads")
-    os.makedirs(upload_folder, exist_ok=True)
-    app.config['UPLOAD_FOLDER'] = upload_folder
+    templates_dir = os.path.join(os.path.dirname(__file__), "services", "email_templates")
+    app.config['EmailService'] = EmailService(db=repo, templates_dir=templates_dir)
 
     # teardown (close DB connections)
     register_teardown(app)

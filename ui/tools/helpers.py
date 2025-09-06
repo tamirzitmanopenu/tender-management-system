@@ -5,7 +5,8 @@ import pandas as pd
 import streamlit as st
 
 from settings.constants import FIELD_LABELS, SELECT_BUSINESSES, ICON_SEND
-from tools.fetch_data import fetch_business, fetch_categories, fetch_business_category
+from tools.fetch_data import fetch_business, fetch_categories, fetch_business_category, \
+    fetch_business_category_selection
 from tools.add_data import register_business_category_selection, register_business_category
 
 from tools.api import delete, get, post
@@ -74,22 +75,30 @@ def business_category_selection(project_id: str):
                         business_category_id = bc_resp.get("business_category_id")
                     except Exception as e:
                         st.error(e)
+
+                # Validates selection_id isn't already exist
                 if business_category_id:
-                    business_category_items.append({
-                        "business_category_id": str(business_category_id),
-                    })
+                    existing = fetch_business_category_selection(business_category_id=business_category_id)
+                    if not existing:
+                        business_category_items.append({
+                            "business_category_id": str(business_category_id),
+                        })
+
+        if not business_category_items:
+            st.warning("לא נמצאו בחירות חדשות")
+            return
         try:
             bcs_resp = register_business_category_selection(project_id, business_category_items)
             print(bcs_resp)
-            
+
             # שליחת מיילים לאחר רישום מוצלח
             if bcs_resp and "created" in bcs_resp:
                 selection_ids = [
-                    item["selection_id"] 
+                    item["selection_id"]
                     for item in bcs_resp["created"]
                     if "selection_id" in item
                 ]
-                
+
                 if selection_ids:
                     email_data = {
                         "items": selection_ids,
@@ -100,13 +109,13 @@ def business_category_selection(project_id: str):
                             "deadline": "טרם נקבע"
                         }
                     }
-                    
-                    email_resp = post("/emails/bulk", json=email_data)
+
+                    email_resp = post("/send_emails/bulk", json=email_data)
                     if email_resp.ok:
                         st.success("נשלחו הזמנות בהצלחה")
                     else:
                         st.warning("נרשם בהצלחה אך שליחת המיילים נכשלה")
-            
+
         except Exception as e:
             st.error(e)
             st.stop()

@@ -1,6 +1,6 @@
 import os
 
-from flask import Blueprint, jsonify, send_from_directory, url_for, current_app
+from flask import Blueprint, jsonify, url_for, current_app
 from flask import request
 
 from utilities import log_event, actor_from_headers
@@ -63,8 +63,8 @@ def get_file(project_id: str):
 # Download a file הורדת קובץ
 @bp.get("/files/download/<filename>")
 def download_file(filename: str):
-    folder = current_app.config["UPLOAD_FOLDER"]
-    return send_from_directory(folder, filename)
+    file_service = current_app.config["FileService"]
+    return file_service.download(filename)
 
 
 # TODO: check the response - might be missing
@@ -82,7 +82,7 @@ def process_skn(file_id: str):
         return jsonify({"error": f"Could not find file record for file_id {file_id}"}), 404
 
     # Prefer file_path from DB if present, otherwise fall back to UPLOAD_FOLDER + name
-    upload_folder = current_app.config.get("UPLOAD_FOLDER", "")
+    upload_folder = getattr(file_service, 'upload_folder')
 
     file_path = row.get("file_path", os.path.join(upload_folder, row["name"]))
 

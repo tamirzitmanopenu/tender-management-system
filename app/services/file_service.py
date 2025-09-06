@@ -2,7 +2,7 @@ import os
 import uuid
 
 from werkzeug.datastructures import FileStorage
-from werkzeug.utils import secure_filename
+from werkzeug.utils import secure_filename, send_from_directory
 from flask import current_app
 
 from app.services.skn_converter import get_project_tasks
@@ -10,16 +10,16 @@ from utilities import now_iso
 
 
 class FileService:
-    def __init__(self, db):
+    def __init__(self, db, upload_folder):
         # אתחול השירות עם חיבור לבסיס הנתונים
         self.db = db
+        self.upload_folder = upload_folder
 
-    @staticmethod
-    def save_file(file: FileStorage, project_id: str) -> str:
+    def save_file(self, file: FileStorage, project_id: str) -> str:
         """ שומר את הקובץ בתיקיית ההעלאות של האפליקציה ומחזיר את הנתיב לשמירה בבסיס הנתונים"""
         short_id = uuid.uuid4().hex[:4]  # 4 hex chars
         storage_name = secure_filename(f"{short_id}_proj{project_id}_{file.filename}")
-        storage_path = os.path.join(current_app.config['UPLOAD_FOLDER'], storage_name)
+        storage_path = os.path.join(self.upload_folder, storage_name)
 
         # Save the file on the computer
         file.save(storage_path)
@@ -42,6 +42,11 @@ class FileService:
 
     def get_file_record(self, file_id: str):
         return self.db.get_table_record(table='File', filters={'file_id': file_id}, query_one_only=True)
+
+    def download(self, filename: str):
+        upload_folder = self.upload_folder
+        os.makedirs(upload_folder, exist_ok=True)
+        return send_from_directory(upload_folder, filename)
 
     @staticmethod
     def process_skn_to_db(skn_file_path: str, project_id: str) -> dict:

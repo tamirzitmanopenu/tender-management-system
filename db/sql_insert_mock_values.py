@@ -40,8 +40,8 @@ INSERT INTO Business (business_id, company_name) VALUES
 (5, 'חברת אינסטלציה מתקדמת');
 
 INSERT INTO User (username, permission_id, full_name, email, password, phone, user_type) VALUES
-('sup3', 4, 'חברת בניה ופיתוח', 'contact@building.co.il', 'pass432', '03-5557890', 'ספק'),
-('sup4', 4, 'חברת אינסטלציה מתקדמת', 'info@plumbing.co.il', 'pass567', '03-5559999', 'ספק');
+('sup3', 4, 'חברת בניה ופיתוח', 'tamirzitman@gmail.com', 'pass432', '03-5557890', 'ספק'),
+('sup4', 4, 'חברת אינסטלציה מתקדמת', 'yuvalsayag2@gmail.com', 'pass567', '03-5559999', 'ספק');
 
 INSERT INTO Supplier (username, business_id, supplier_id) VALUES
 ('sup1', 1, '510111111'),

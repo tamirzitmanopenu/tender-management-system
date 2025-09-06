@@ -4,12 +4,12 @@ import ssl
 import logging
 from datetime import datetime
 from email.message import EmailMessage
-from pathlib import Path
 from typing import Optional, List, Union, Dict, Any
 from jinja2 import Template
 
+
 class EmailService:
-    def __init__(self, db, templates_dir=None):
+    def __init__(self, db, templates_dir):
         """
         Initialize the email service with database connection.
 
@@ -118,7 +118,6 @@ class EmailService:
         """
         start_time = datetime.now()
 
-
         # Normalize email lists
         recipients = self._normalize_emails(recipient)
         cc_list = self._normalize_emails(cc)
@@ -131,7 +130,6 @@ class EmailService:
         # Validate inputs
         if not all_recipients or not subject or content is None:
             raise ValueError("Recipient, subject, and content are required")
-
 
         # Set default sender name
         sender_name = sender_name or "מערכת המכרזים TendySys"
