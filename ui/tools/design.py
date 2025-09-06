@@ -63,19 +63,71 @@ def set_rtl():
         text-align: right;
       }
 
-      /* Buttons: RTL text, LTR icon */
+      /* FIXED: Regular Buttons RTL with proper alignment */
       [data-testid="stButton"] > button {
-        direction: rtl;
-        unicode-bidi: isolate-override;
-        display: inline-flex;
-        align-items: center;
-        gap: .4rem;
+        direction: rtl !important;
+        text-align: right !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0.5rem !important;
+        flex-direction: row-reverse !important;
+        padding: 0.375rem 0.75rem !important;
+        min-height: 38px !important;
+        box-sizing: border-box !important;
       }
 
+      /* FIXED: Form Submit Buttons - specific targeting */
+      [data-testid="stFormSubmitButton"] button {
+        direction: rtl !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-direction: row-reverse !important;
+        gap: 0.25rem !important;
+        padding: 0.375rem 0.75rem !important;
+      }
+
+      /* Fix Form Submit Button icon positioning */
+      [data-testid="stFormSubmitButton"] button > span[data-testid="stIconMaterial"] {
+        order: 2 !important;
+        margin-left: 0.25rem !important;
+        margin-right: 0 !important;
+        flex-shrink: 0 !important;
+      }
+
+      /* Fix Form Submit Button text positioning */
+      [data-testid="stFormSubmitButton"] button > div[data-testid="stMarkdownContainer"] {
+        order: 1 !important;
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+        text-align: right !important;
+      }
+
+      /* Ensure form submit button text is properly aligned */
+      [data-testid="stFormSubmitButton"] button p {
+        margin: 0 !important;
+        text-align: right !important;
+        direction: rtl !important;
+      }
+
+      /* Handle regular button icons */
       [data-testid="stButton"] .material-icons,
-      [data-testid="stButton"] [class^="material-icons"] {
+      [data-testid="stButton"] [class^="material-icons"],
+      [data-testid="stButton"] svg {
         direction: ltr !important;
         unicode-bidi: isolate !important;
+        flex-shrink: 0 !important;
+        margin: 0 !important;
+      }
+
+      /* Handle regular button text */
+      [data-testid="stButton"] > button span,
+      [data-testid="stButton"] > button p {
+        margin: 0 !important;
+        padding: 0 !important;
+        line-height: 1.2 !important;
+        white-space: nowrap !important;
       }
 
       /* Expander spacing fix - target the actual HTML structure */
