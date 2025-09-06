@@ -1,10 +1,19 @@
 import streamlit as st
 from tools.helpers import business_category_selection
-from settings.constants import SELECT_PROJECT
+from settings.constants import (
+    NAV_PROJECTS,
+    SELECT_PROJECT,
+    PROJECT_FILES_BTN,
+    PROJECT_DELETE_BTN,
+    PROJECT_ASSIGN_BUSINESS_BTN,
+    ICON_FILES,
+    ICON_DELETE,
+    ICON_ASSIGN,
+)
 from tools.fetch_data import fetch_projects
 from tools.helpers import project_del, project_files
 
-st.header("פרויקטים")
+st.header(NAV_PROJECTS)
 
 with st.container(border=True):
     projects = fetch_projects()
@@ -13,12 +22,12 @@ with st.container(border=True):
         project_id = projects.get(project_name)
         c1, c2 = st.columns(2)
         with c1:
-            if st.button("קבצי פרויקט", width="stretch"):
+            if st.button(PROJECT_FILES_BTN, icon=ICON_FILES, width="stretch"):
                 project_files(project_id)
         with c2:
-            if st.button("מחיקה", width="stretch"):
+            if st.button(PROJECT_DELETE_BTN, icon=ICON_DELETE, width="stretch"):
                 project_del(project_id)
-        if st.button(label="הקצאת קבלני משנה לפריוקט", width="stretch", type="primary"):
+        if st.button(PROJECT_ASSIGN_BUSINESS_BTN, width="stretch", type="primary", icon=ICON_ASSIGN):
             business_category_selection(project_id)
 
 

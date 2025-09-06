@@ -8,6 +8,7 @@ from settings.constants import (
     OFFER_SUBMIT_BTN,
     OFFER_SUBMIT_SUCCESS,
     OFFER_SUBMIT_ERROR,
+    ICON_SEND,
 )
 from tools.fetch_data import fetch_projects, fetch_categories, fetch_tasks
 
@@ -67,7 +68,7 @@ with st.container(border=True):
     st.markdown(f"### סה\"כ הצעת מחיר: ₪{total_sum:,.2f}")
 
     # Submit form
-    submitted = st.button(OFFER_SUBMIT_BTN)
+    submitted = st.button(OFFER_SUBMIT_BTN, icon=ICON_SEND)
     prices = st.session_state.prices
 
 if submitted:

@@ -63,6 +63,11 @@ ICON_MANAGE = ":material/settings:"
 ICON_NEW = ":material/add:"
 ICON_REPORTS = ":material/analytics:"  # גרף עמודות
 ICON_REFRESH = ":material/refresh:"
+ICON_FILES = ":material/description:"
+ICON_DELETE = ":material/delete:"
+ICON_ASSIGN = ":material/handshake:"
+ICON_SAVE = ":material/save:"
+ICON_SEND = ":material/send:"
 
 
 FETCH_PROJECTS = "טוען פרויקטים"
@@ -76,6 +81,26 @@ SELECT_PROJECT = "בחר פרויקט"
 SELECT_CATEGORY = "בחר קטגוריה"
 SELECT_BUSINESSES = "בחר בקבלני משנה"
 
+SAVE_BTN = "שמור"
+
+PROJECT_FILES_BTN = "קבצי פרויקט"
+PROJECT_DELETE_BTN = "מחיקה"
+PROJECT_ASSIGN_BUSINESS_BTN = "הקצאת קבלני משנה לפרויקט"
+
+CATEGORY_NEW_HEADER = "קטגוריה חדשה"
+CATEGORY_NAME_LABEL = "שם קטגוריה"
+CATEGORY_ADD_SUCCESS = "הקטגוריה נוספה"
+CATEGORY_ADD_EXISTS = "הקטגוריה כבר קיימת"
+CATEGORY_ADD_FAILURE = "נכשלה הוספת הקטגוריה"
+
+BUSINESS_NEW_HEADER = "עסק חדש"
+BUSINESS_COMPANY_NAME = "שם חברה"
+BUSINESS_ID_LABEL = "מספר ח.פ"
+BUSINESS_ADD_SUCCESS = "העסק נוצר"
+BUSINESS_ADD_FAILURE = "נכשלה יצירת העסק"
+
+PROJECT_NEW_HEADER = "פרויקט חדש"
+
 FIELD_LABELS = {
     "new_project_name": "שם הפרויקט",
     "new_deadline": "תאריך היעד",
@@ -83,3 +108,4 @@ FIELD_LABELS = {
     "uploaded_other": "קובץ נוסף",
     "file_type": "סוג הקובץ"
 }
+
