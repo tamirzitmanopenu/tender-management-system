@@ -8,7 +8,7 @@ from settings.constants import FIELD_LABELS, SELECT_BUSINESSES, ICON_SEND
 from tools.fetch_data import fetch_business, fetch_categories, fetch_business_category
 from tools.add_data import register_business_category_selection, register_business_category
 
-from tools.api import delete, get
+from tools.api import delete, get, post
 
 
 # -- Streamlit related helpers --
@@ -81,6 +81,32 @@ def business_category_selection(project_id: str):
         try:
             bcs_resp = register_business_category_selection(project_id, business_category_items)
             print(bcs_resp)
+            
+            # שליחת מיילים לאחר רישום מוצלח
+            if bcs_resp and "created" in bcs_resp:
+                selection_ids = [
+                    item["selection_id"] 
+                    for item in bcs_resp["created"]
+                    if "selection_id" in item
+                ]
+                
+                if selection_ids:
+                    email_data = {
+                        "items": selection_ids,
+                        "subject": "הזמנה להגשת הצעה למכרז",
+                        "template_id": "request_offer",
+                        "template_variables": {
+                            "project_name": project_id,
+                            "deadline": "טרם נקבע"
+                        }
+                    }
+                    
+                    email_resp = post("/emails/bulk", json=email_data)
+                    if email_resp.ok:
+                        st.success("נשלחו הזמנות בהצלחה")
+                    else:
+                        st.warning("נרשם בהצלחה אך שליחת המיילים נכשלה")
+            
         except Exception as e:
             st.error(e)
             st.stop()
