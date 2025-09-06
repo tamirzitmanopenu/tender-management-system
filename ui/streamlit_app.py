@@ -25,6 +25,10 @@ def init_session_state():
         st.session_state["comparison_data"] = None
 
 
+st.set_page_config(
+    page_icon=ICON_OFFERS,
+    layout="centered",
+)
 load_dotenv()  # loads from .env into os.environ
 env = os.getenv("ENV", "")
 

@@ -4,11 +4,13 @@ from flask import Flask
 from flask_cors import CORS
 
 from db.db import get_db
+from .error_handlers import register_error_handlers
 from .services.ai_recommendation_service import AIRecommendationService
 from .services.business_category_service import BusinessCategoryService
 from .services.business_service import BusinessService
 from .services.category_comparison_service import CategoryComparisonService
 from .services.category_service import CategoryService
+from .services.email_service import EmailService
 from .services.file_service import FileService
 from .services.offer_service import OfferService
 from .services.project_task_service import ProjectTaskService
@@ -20,6 +22,7 @@ from .blueprints.projects import bp as projects_bp
 from .blueprints.files import bp as files_bp
 from .blueprints.offers import bp as offers_bp
 from .blueprints.category_comparison import bp as category_comparison_bp
+from .blueprints.emails import bp as emails_bp
 
 
 def create_app():
@@ -35,6 +38,7 @@ def create_app():
     app.register_blueprint(files_bp, url_prefix="/api")
     app.register_blueprint(offers_bp, url_prefix="/api")
     app.register_blueprint(category_comparison_bp, url_prefix="/api")
+    app.register_blueprint(emails_bp, url_prefix="/api")
 
     with app.app_context():
         repo = get_db()
@@ -48,6 +52,7 @@ def create_app():
     app.config['OfferService'] = OfferService(repo)
     app.config['CategoryComparisonService'] = CategoryComparisonService(repo)
     app.config['AIRecommendationService'] = AIRecommendationService(repo)
+    app.config['EmailService'] = EmailService(repo)
 
     upload_folder = os.path.join(os.path.dirname(__file__), "uploads")
     os.makedirs(upload_folder, exist_ok=True)
@@ -55,5 +60,6 @@ def create_app():
 
     # teardown (close DB connections)
     register_teardown(app)
+    register_error_handlers(app)
 
     return app
