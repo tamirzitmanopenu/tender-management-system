@@ -67,7 +67,6 @@ def download_file(filename: str):
     return file_service.download(filename)
 
 
-# TODO: check the response - might be missing
 # Process SKN file (bill of quantities) עיבוד קובץ SKN (כתב כמויות)
 @bp.post("/files/<file_id>/process-skn")
 def process_skn(file_id: str):
@@ -97,13 +96,13 @@ def process_skn(file_id: str):
     try:
         result = file_service.process_skn_to_db(skn_file_path=file_path, project_id=str(row['project_id']))
 
-        # If you later make it return stats (e.g., inserted/count/duplicates), they’ll flow through.
         payload = {
             "message": "SKN file processed and tasks inserted (see server logs for details).",
             "file_id": file_id,
-            "project_id": str(row['project_id'])
+            "project_id": str(row['project_id']),
         }
-        if isinstance(result, dict):
+
+        if result:
             payload.update(result)
 
         return jsonify(payload), 200

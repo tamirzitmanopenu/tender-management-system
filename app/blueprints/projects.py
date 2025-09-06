@@ -36,7 +36,7 @@ def get_project(project_id: str):
     return jsonify(row)
 
 
-# TODO: consider set as deleted = 1 or rollback any dependency on this project_id
+# Soft delete a project by marking it as deleted
 @bp.delete("/projects/<project_id>")
 def delete_project(project_id: str):
     service = current_app.config["ProjectService"]

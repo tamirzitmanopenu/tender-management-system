@@ -62,23 +62,22 @@ def business_category_selection(project_id: str):
             business_categories = fetch_business_category(category_id=category_id)
 
             for business in selected_businesses:
-                # TODO: validate business_id with the selected business_id and current category_id isn't already exist
                 business_id = business["business_id"]
 
-                print(f"current list of business_categories is {business_categories}")
-                print(f"Looking for business_category_id where the business_id is {business_id}")
+                # Look for existing association of this business with the current category
                 business_category_id = next(
                     (bc["business_category_id"] for bc in business_categories if bc["business_id"] == business_id),
                     None
                 )
-                print(f"business_category_id that was found is {business_category_id}")
-                # Handle missing category association
+
+                # Create association if it doesn't already exist
                 if business_category_id is None:
                     try:
                         bc_resp = register_business_category(category_id, business_id)
                         business_category_id = bc_resp.get("business_category_id")
                     except Exception as e:
                         st.error(e)
+                        continue
 
                 # Validates selection_id isn't already exist
                 if business_category_id:
