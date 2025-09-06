@@ -6,20 +6,23 @@ from datetime import datetime
 from email.message import EmailMessage
 from pathlib import Path
 from typing import Optional, List, Union, Dict, Any
+from jinja2 import Template
 
 class EmailService:
-    def __init__(self, db):
+    def __init__(self, db, templates_dir=None):
         """
         Initialize the email service with database connection.
 
         Args:
             db: Database connection object
+            templates_dir: Directory for email templates
         """
         self.db = db
         self._smtp_host = "smtp.gmail.com"
         self._smtp_port = 587
         self._email = None
         self._app_password = None
+        self.templates_dir = templates_dir
         self._validate_credentials()
 
         # Configure logging
@@ -273,29 +276,30 @@ class EmailService:
                   )
             return False
 
-    def resolve_email_template(self, template_id: str) -> str:
-        """Returns the html according to template_id (file name)"""
+    def resolve_email_template(self, template_id: str, variables: Optional[Dict[str, Any]] = None) -> str:
+        """
+        Resolves an email template by replacing variables in the template.
 
-        # Get the directory of the current script (absolute path)
-        base_dir = Path(__file__).resolve().parent
+        Args:
+            template_id (str): The template file name without extension
+            variables (dict): Dictionary of variables to inject into the template
 
-        # Navigate to the templates folder reliably
-        template_dir = base_dir / "email_templates"
+        Returns:
+            str: The resolved HTML content
+        """
+        if variables is None:
+            variables = {}
 
-        # Use this to construct the template path
-        template_path = template_dir / f"{template_id}.html"
+        template_path = os.path.join(self.templates_dir, f"{template_id}.html")
 
-        print(f"Resolved template_path: {template_path}")
+        if not os.path.exists(template_path):
+            raise ValueError(f"Template {template_id} not found")
 
-        if not template_path.exists():
-            raise FileNotFoundError(f"Template '{template_id}' not found")
+        with open(template_path, 'r', encoding='utf-8') as file:
+            template_content = file.read()
 
-        # Read and return the HTML content
-        try:
-            with open(template_path, 'r', encoding='utf-8') as file:
-                return file.read()
-        except Exception as e:
-            raise RuntimeError(f"Error reading template '{template_id}': {str(e)}")
+        template = Template(template_content)
+        return template.render(**variables)
 
 
 # Example usage:
@@ -306,7 +310,7 @@ if __name__ == "__main__":
 
     load_dotenv()
     db = get_db()
-    email_service = EmailService(db)
+    email_service = EmailService(db, templates_dir="email_templates")
 
     # Test connection
     if email_service.test_connection():
