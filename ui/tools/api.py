@@ -14,6 +14,7 @@ def get(path: str, **kwargs):
     try:
         return requests.get(f"{base_url}{path}", **kwargs)
     except Exception as e:
+        # TODO: Consider fixing return None while None does not have .ok attribute
         print(e)
         return None
 
