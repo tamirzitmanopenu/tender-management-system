@@ -97,7 +97,6 @@ def process_skn(file_id: str):
     try:
         result = file_service.process_skn_to_db(skn_file_path=file_path, project_id=str(row['project_id']))
 
-        # If you later make it return stats (e.g., inserted/count/duplicates), they’ll flow through.
         payload = {
             "message": "SKN file processed and tasks inserted (see server logs for details).",
             "file_id": file_id,
