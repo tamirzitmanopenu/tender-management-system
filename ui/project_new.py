@@ -1,12 +1,25 @@
 import streamlit as st
 from tools.api import post
-from settings.constants import FIELD_LABELS, PROJECT_REQUIRED_FORM_KEYS, PROJECT_SKN_PROCESS_TEXT, \
-    PROJECT_CREATION_SUCCESS_TEXT, PROJECT_SKN_UPLOAD_SUCCESS_TEXT, PROJECT_SKN_PROCESS_SUCCESS_TEXT, \
-    PROJECT_SKN_PROCESS_FAILURE_TEXT, PROJECT_SKN_UPLOAD_FAILURE_TEXT, PROJECT_FILE_TYPE_SKN, \
-    PROJECT_CREATION_FAILURE_TEXT, PROJECT_OTHER_UPLOAD_SUCCESS_TEXT, PROJECT_OTHER_UPLOAD_FAILURE_TEXT, ICON_PROJECTS
+from settings.constants import (
+    FIELD_LABELS,
+    PROJECT_REQUIRED_FORM_KEYS,
+    PROJECT_SKN_PROCESS_TEXT,
+    PROJECT_CREATION_SUCCESS_TEXT,
+    PROJECT_SKN_UPLOAD_SUCCESS_TEXT,
+    PROJECT_SKN_PROCESS_SUCCESS_TEXT,
+    PROJECT_SKN_PROCESS_FAILURE_TEXT,
+    PROJECT_SKN_UPLOAD_FAILURE_TEXT,
+    PROJECT_FILE_TYPE_SKN,
+    PROJECT_CREATION_FAILURE_TEXT,
+    PROJECT_OTHER_UPLOAD_SUCCESS_TEXT,
+    PROJECT_OTHER_UPLOAD_FAILURE_TEXT,
+    PROJECT_NEW_HEADER,
+    SAVE_BTN,
+    ICON_SAVE,
+)
 from tools.helpers import get_label
 
-st.header("פרויקט חדש")
+st.header(PROJECT_NEW_HEADER)
 
 
 def validate_form(required_keys=None):
@@ -37,9 +50,10 @@ with st.form("add_project"):
         file_type = st.text_input(get_label('file_type'), key='file_type')
 
     submitted = st.form_submit_button(
-        "שמור",
+        SAVE_BTN,
         on_click=validate_form,
-        kwargs={'required_keys': PROJECT_REQUIRED_FORM_KEYS}
+        kwargs={'required_keys': PROJECT_REQUIRED_FORM_KEYS},
+        icon=ICON_SAVE,
     )
 
 if submitted:

@@ -4,7 +4,7 @@ from io import BytesIO
 import pandas as pd
 import streamlit as st
 
-from settings.constants import FIELD_LABELS, SELECT_BUSINESSES
+from settings.constants import FIELD_LABELS, SELECT_BUSINESSES, ICON_SEND
 from tools.fetch_data import fetch_business, fetch_categories, fetch_business_category
 from tools.add_data import register_business_category_selection, register_business_category
 
@@ -49,7 +49,7 @@ def business_category_selection(project_id: str):
 
             st.divider()
 
-        submitted = st.form_submit_button("הפצת מכרז", width="stretch", type="primary")
+        submitted = st.form_submit_button("הפצת מכרז", width="stretch", type="primary", icon=ICON_SEND)
 
     if submitted:
         business_category_items = []
