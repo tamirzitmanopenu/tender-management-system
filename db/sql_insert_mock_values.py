@@ -21,10 +21,10 @@ INSERT INTO Permission (permission_id, permission_name) VALUES
 
 
 INSERT INTO User (username, permission_id, full_name, email, password, phone, user_type) VALUES
-('admin1', 1, 'אורי כהן', 'ori@example.com', 'pass123', '050-1234567', 'עובד'),
-('emp1', 2, 'דנה לוי', 'dana@example.com', 'pass456', '050-7654321', 'עובד'),
-('sup1', 4, 'חברת בטון בע״מ', 'contact@beton.co.il', 'pass789', '03-5551234', 'ספק'),
-('sup2', 4, 'חברת חשמליות', 'sales@electric.co.il', 'pass321', '03-5554321', 'ספק');
+('admin1', 1, 'אורי כהן', 'tamirzitman@gmail.com', 'pass123', '050-1234567', 'עובד'),
+('emp1', 2, 'דנה לוי', 'tamirzitman@gmail.com', 'pass456', '050-7654321', 'עובד'),
+('sup1', 4, 'חברת בטון בע״מ', 'tamirzitman@gmail.com', 'pass789', '03-5551234', 'ספק'),
+('sup2', 4, 'חברת חשמליות', 'tamirzitman@gmail.com', 'pass321', '03-5554321', 'ספק');
 
 
 INSERT INTO Employee (username, employee_id, department) VALUES

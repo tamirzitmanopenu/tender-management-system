@@ -143,12 +143,18 @@ class EmailService:
 
             # Create SSL context
             context = ssl.create_default_context()
+            # Add more detailed logging to see what's happening
+            self.logger.info(f"Attempting to connect to SMTP server: {self._smtp_host}:{self._smtp_port}")
 
             # Send email
             with smtplib.SMTP(self._smtp_host, self._smtp_port, timeout=timeout) as server:
+                self.logger.info("SMTP connection established")
                 server.starttls(context=context)
+                self.logger.info("TLS started successfully")
                 server.login(self._email, self._app_password)
+                self.logger.info("SMTP authentication successful")
                 server.send_message(msg, to_addrs=all_recipients)
+                self.logger.info("Email sent successfully")
 
             # Log success
             self.logger.info(f"Email sent successfully to {len(all_recipients)} recipient(s): {subject}")

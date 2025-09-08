@@ -30,8 +30,7 @@ def business_category_selection(project_id: str):
             in_category = [b for b in all_business if b['business_id'] in business_ids_in_category]
             not_in_category = [b for b in all_business if b['business_id'] not in business_ids_in_category]
 
-            # Combine the lists: show in-category businesses first
-            businesses_list = in_category + not_in_category
+            # Enable in-category businesses first
 
             st.caption(f"{category_name}")
 
@@ -39,10 +38,18 @@ def business_category_selection(project_id: str):
             key = f"bs_p{project_id}_c{category_id}"
             selected_businesses = st.pills(
                 label=SELECT_BUSINESSES,
-                options=businesses_list,
+                options=in_category,
                 key=key,
                 format_func=lambda x: x["company_name"],
-                selection_mode="multi"
+                selection_mode="multi",
+            )
+            st.pills(
+                label="קבלני משנה שאינם רשומים בקטגוריה",
+                options=not_in_category,
+                key=f"{key}_non",
+                format_func=lambda x: x["company_name"],
+                help="אין אפשרות לבחור בקבלני משנה שאינם רשומים בקטגוריה - יש לרשום אותם בחלון ניהול קבלני משנה",
+                disabled=True
             )
 
             if selected_businesses:
@@ -64,14 +71,10 @@ def business_category_selection(project_id: str):
             for business in selected_businesses:
                 # TODO: validate business_id with the selected business_id and current category_id isn't already exist
                 business_id = business["business_id"]
-
-                print(f"current list of business_categories is {business_categories}")
-                print(f"Looking for business_category_id where the business_id is {business_id}")
                 business_category_id = next(
                     (bc["business_category_id"] for bc in business_categories if bc["business_id"] == business_id),
                     None
                 )
-                print(f"business_category_id that was found is {business_category_id}")
                 # Handle missing category association
                 if business_category_id is None:
                     try:
