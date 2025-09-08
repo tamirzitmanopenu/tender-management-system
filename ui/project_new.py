@@ -87,6 +87,7 @@ if submitted:
                     st.success(PROJECT_SKN_PROCESS_SUCCESS_TEXT)
                 else:
                     st.error(PROJECT_SKN_PROCESS_FAILURE_TEXT)
+                    print(f"Error occurred while processing SKN file: {process_skn_resp.json()}")
                     st.stop()
         else:
             st.error(PROJECT_SKN_UPLOAD_FAILURE_TEXT)

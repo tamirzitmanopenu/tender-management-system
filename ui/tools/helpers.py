@@ -1,5 +1,6 @@
 import json
 from io import BytesIO
+from datetime import datetime
 
 import pandas as pd
 import streamlit as st
@@ -14,7 +15,11 @@ from tools.api import delete, get, post
 
 # -- Streamlit related helpers --
 @st.dialog("הקצאת עסקים לקטגוריות")
-def business_category_selection(project_id: str):
+def business_category_selection(project:dict):
+    project_id = project.get("project_id")
+    project_name = project.get("project_name")
+    project_deadline = project.get("project_deadline","טרם נקבע")
+    
     all_business = fetch_business()
     categories = fetch_categories(project_id=project_id)
     if not categories:
@@ -106,14 +111,18 @@ def business_category_selection(project_id: str):
                     if "selection_id" in item
                 ]
 
-                if selection_ids:
+                if selection_ids:   
+                    formatted_deadline = (
+                        datetime.strptime(project_deadline, "%Y-%m-%d").strftime("%d/%m/%Y")
+                        if project_deadline else "—"
+                    )
                     email_data = {
                         "items": selection_ids,
                         "subject": "הזמנה להגשת הצעה למכרז",
                         "template_id": "request_offer",
                         "template_variables": {
-                            "project_name": project_id,
-                            "deadline": "טרם נקבע"
+                            "project_name": project_name,
+                            "deadline": formatted_deadline,
                         }
                     }
 

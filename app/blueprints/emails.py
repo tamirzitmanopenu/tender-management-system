@@ -113,7 +113,7 @@ def send_bulk_emails_by_selection_bc():
         )
 
         result = email_service.send_email(
-            recipient=recipients,
+            bcc=recipients, # send as BCC to protect privacy
             subject=data["subject"],
             content=content,
             content_type="html"

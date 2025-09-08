@@ -14,9 +14,11 @@ from tools.fetch_data import fetch_projects, fetch_categories, fetch_tasks
 
 st.header(OFFER_HEADER)
 
-projects = fetch_projects()
-project_name = st.selectbox(SELECT_PROJECT, list(projects.keys()))
-project_id = projects.get(project_name)
+projects:list[dict] = fetch_projects()
+project_map = {p['name']: p for p in projects}
+
+project_name = st.selectbox(SELECT_PROJECT, [p['name'] for p in projects])
+project_id = project_map[project_name]['project_id']
 
 categories = fetch_categories(project_id=project_id)
 category_name = st.selectbox(OFFER_SELECT_CATEGORY, list(categories.keys()))

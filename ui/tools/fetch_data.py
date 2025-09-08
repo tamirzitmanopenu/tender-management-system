@@ -10,11 +10,12 @@ from settings.constants import FETCH_PROJECTS, FETCH_CATEGORIES, FETCH_TASKS, FE
 
 
 @st.cache_data(show_spinner=FETCH_PROJECTS)
-def fetch_projects() -> dict:
+def fetch_projects() -> list:
     resp = get("/projects")
     if getattr(resp, "ok", False):
-        return {p["name"]: p["project_id"] for p in resp.json()}
-    return {}
+        return resp.json().get("data", [])
+    return []
+
 
 
 @st.cache_data(show_spinner=FETCH_CATEGORIES)
