@@ -119,6 +119,8 @@ def business_category_selection(project_id: str):
 
                     email_resp = post("/send_emails/bulk", json=email_data)
                     if email_resp.ok:
+                        if email_resp.json().get("invalid_items"):
+                            st.warning("נרשמו בחירות אך חלק מההזמנות לא נשלחו")
                         st.success("נשלחו הזמנות בהצלחה")
                     else:
                         st.warning("נרשם בהצלחה אך שליחת המיילים נכשלה")

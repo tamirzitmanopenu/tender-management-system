@@ -69,7 +69,7 @@ class BusinessCategoryService:
             FROM BusinessCategory as bc
             JOIN User on User.username = bc.supplier_contact
             JOIN Business ON Business.business_id = bc.business_id
-            JOIN BusinessCategorySelection ON BusinessCategorySelection.selection_id = bc.business_category_id
+            JOIN BusinessCategorySelection ON BusinessCategorySelection.business_category_id = bc.business_category_id
             WHERE BusinessCategorySelection.selection_id = ?
             """
             return self.db.query_one(query, (business_category_selection,))
