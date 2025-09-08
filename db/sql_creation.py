@@ -1,9 +1,10 @@
 import sqlite3
 from pathlib import Path
 
+SCRIPT_DIR = Path(__file__).parent
+db_file = SCRIPT_DIR / 'tender-management-system.db'
+schema_file = SCRIPT_DIR / "schema.sql"
 
-db_file = r'tender-management-system.db'
-schema_file = "schema.sql"
 
 conn = sqlite3.connect(db_file)
 cursor = conn.cursor()

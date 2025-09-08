@@ -1,8 +1,12 @@
 import sqlite3
 from datetime import datetime, timedelta
+from pathlib import Path
+
+SCRIPT_DIR = Path(__file__).parent
+db_file = SCRIPT_DIR / 'tender-management-system.db'
 
 # יצירת חיבור למסד הנתונים
-conn = sqlite3.connect(r'tender-management-system.db')
+conn = sqlite3.connect(db_file)
 cursor = conn.cursor()
 
 # תאריכים לשימוש
