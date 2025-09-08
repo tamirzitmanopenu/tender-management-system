@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS User (
     email TEXT NOT NULL,
     password TEXT NOT NULL,
     phone TEXT,
-    user_type TEXT CHECK(user_type IN ('עובד', 'ספק')),
+    user_type TEXT CHECK(user_type IN ('employee', 'supplier')),
     FOREIGN KEY (permission_id) REFERENCES Permission(permission_id)
 );
 

@@ -10,7 +10,7 @@ from settings.constants import (
     OFFER_SUBMIT_ERROR,
     ICON_SEND,
 )
-from tools.fetch_data import fetch_projects, fetch_categories, fetch_tasks
+from tools.fetch_data import fetch_business_category, fetch_projects, fetch_categories, fetch_tasks, fetch_user_details
 
 st.header(OFFER_HEADER)
 
@@ -78,9 +78,15 @@ if submitted:
         {"project_task_id": str(task_id), "price_offer": price}
         for task_id, price in prices.items()
     ]
+    business_id = fetch_user_details(username=st.session_state.user).get('business_id')
+    business_categories : list[dict] = fetch_business_category(category_id=category_id, business_id=business_id)
+    if not business_categories:
+        st.error("לא נמצאה קטגוריה עסקית עבור העסק שלך בקטגוריה זו. לא ניתן להגיש הצעה.")
+        st.stop()
+    business_category_id = business_categories[0].get('business_category_id') if business_categories else None
     data = {
         "project_id": str(project_id),
-        "business_category_id": str(category_id),
+        "business_category_id": str(business_category_id),
         "items": items,
     }
     resp = post("/offers", json=data)
@@ -88,3 +94,4 @@ if submitted:
         st.success(OFFER_SUBMIT_SUCCESS)
     else:
         st.error(OFFER_SUBMIT_ERROR)
+        print(f"resp.json(): {resp.json()}")

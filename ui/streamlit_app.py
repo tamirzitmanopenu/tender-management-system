@@ -64,6 +64,7 @@ if logo_path.exists():
     st.sidebar.image(str(logo_path))
 if st.sidebar.button("", icon=ICON_REFRESH, help="רענון נתונים", width="stretch"):
     st.cache_data.clear()
+st.sidebar.text_input("Current User Name", key="user", value="sup1", help="שם המשתמש הנוכחי")
 st.sidebar.title(f"{env}")
 pg = st.navigation(pages)
 pg.run()

@@ -60,13 +60,18 @@ def fetch_business():
 
 
 @st.cache_data
-def fetch_business_category(category_id: str = None):
+def fetch_business_category(category_id: str = None, business_id:str=None):
     url = "/business-category"
-
+    
+    # if business_id is None and category_id is None:
+        
     params = {}
     if category_id is not None:
         params["category_id"] = category_id
-
+    
+    if business_id is not None:
+        params["business_id"] = business_id
+        
     # append query string if params exist
     if params:
         url += f"?{urlencode(params)}"
@@ -113,4 +118,11 @@ def fetch_ai_recom(json_input: dict) -> dict:
     resp = post("/ai/recommendations", json=json_input)
     if getattr(resp, "ok", False):
         return json.loads(resp.json().get("ai_result"))
+    return {}
+
+@st.cache_data
+def fetch_user_details(username:str) -> dict:
+    resp = get("/user/details",json={"username": username})
+    if getattr(resp, "ok", False):
+        return resp.json().get("data", {})
     return {}

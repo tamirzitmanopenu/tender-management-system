@@ -10,10 +10,11 @@ def now_iso():
 
 
 def actor_from_headers():
-    return request.headers.get("X-User")
+    return request.headers.get("X-User", "sup1")
 
 
 def log_event(message, username=None, level="INFO"):
+    print(f"Print Log: [{level}] {message}")
     if username is None:
         username = actor_from_headers()
     get_db().execute(

@@ -15,6 +15,7 @@ from .services.file_service import FileService
 from .services.offer_service import OfferService
 from .services.project_task_service import ProjectTaskService
 from .services.project_service import ProjectService
+from .services.user_service import UserService
 from .teardown import register_teardown
 from .blueprints.businesses import bp as businesses_bp
 from .blueprints.categories import bp as categories_bp
@@ -23,7 +24,7 @@ from .blueprints.files import bp as files_bp
 from .blueprints.offers import bp as offers_bp
 from .blueprints.category_comparison import bp as category_comparison_bp
 from .blueprints.emails import bp as emails_bp
-
+from .blueprints.users import bp as users_bp
 
 def create_app():
     app = Flask(__name__)
@@ -39,6 +40,7 @@ def create_app():
     app.register_blueprint(offers_bp, url_prefix="/api")
     app.register_blueprint(category_comparison_bp, url_prefix="/api")
     app.register_blueprint(emails_bp, url_prefix="/api")
+    app.register_blueprint(users_bp, url_prefix="/api")
 
     with app.app_context():
         repo = get_db()
@@ -55,7 +57,7 @@ def create_app():
     app.config['AIRecommendationService'] = AIRecommendationService(repo)
     templates_dir = os.path.join(os.path.dirname(__file__), "services", "email_templates")
     app.config['EmailService'] = EmailService(db=repo, templates_dir=templates_dir)
-
+    app.config['UserService'] = UserService(repo)
     # teardown (close DB connections)
     register_teardown(app)
     register_error_handlers(app)
