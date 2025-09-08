@@ -90,7 +90,7 @@ def business_category_selection(project:dict):
 
                 # Validates selection_id isn't already exist
                 if business_category_id:
-                    existing = fetch_business_category_selection(business_category_id=business_category_id)
+                    existing = fetch_business_category_selection(project_id=project_id, business_category_id=business_category_id)
                     if not existing:
                         business_category_items.append({
                             "business_category_id": str(business_category_id),
