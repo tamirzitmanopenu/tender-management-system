@@ -94,6 +94,16 @@ INSERT INTO ProjectTask (project_task_id, category_id, project_id, description, 
 (7, 2, 2, 'החלפת תשתית חשמל', 'תשתיות', 'קומה', 4),
 (8, 4, 2, 'החלפת צנרת ביוב', 'צנרת', 'מטר', 150);
 
+INSERT INTO BusinessCategorySelection (selection_id, project_id, business_category_id) VALUES
+-- Project 1 (בניית בניין משרדים - תל אביב) - needs concrete, electrical, and plumbing work
+(1, 1, 1),   -- חברת בטון בע״מ - עבודות שלד
+(2, 1, 6),   -- חברת חשמליות - עבודות חשמל
+(3, 1, 20),  -- חברת אינסטלציה מתקדמת - עבודות אינסטלציה
+
+-- Project 2 (שיפוץ מבנה מגורים - חיפה) - needs structural, electrical, and painting work
+(4, 2, 9),   -- חברת צבעים וציפויים - עבודות שלד
+(5, 2, 14),  -- חברת חשמליות - עבודות חשמל (through business 4)
+(6, 2, 19);  -- חברת צבעים וציפויים - עבודות צבע
 
 """)
 
