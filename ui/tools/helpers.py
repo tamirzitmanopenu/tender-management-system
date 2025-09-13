@@ -13,8 +13,58 @@ from tools.add_data import register_business_category_selection, register_busine
 from tools.auth import get_username, logout
 from tools.api import delete, get, post
 
+from settings.constants import NAV_PROJECTS
+
+from settings.constants import PAGE_NEW, PAGE_MANAGE, NAV_BUSINESSES, NAV_CATEGORIES, NAV_OFFERS, ICON_NEW, \
+    PAGE_REPORT, ICON_REPORTS, ICON_MANAGE
+
 
 # -- Permission Management and Authorization --
+def define_sidebar(user_permission):
+    offer_page_path = "pages/offer_new.py"
+
+    with st.sidebar:
+        st.markdown("## Navigation")
+
+        if user_permission == 'Admin':
+            st.markdown(f"### {NAV_PROJECTS}")
+            st.page_link("pages/project_new.py", label=PAGE_NEW, icon=ICON_NEW)
+            st.page_link("pages/project_mng.py", label=PAGE_MANAGE, icon=ICON_MANAGE)
+
+            st.markdown(f"### {NAV_BUSINESSES}")
+            st.page_link("pages/business_new.py", label=PAGE_NEW, icon=ICON_NEW)
+            st.page_link("pages/business_mng.py", label=PAGE_MANAGE, icon=ICON_MANAGE)
+
+            st.markdown(f"### {NAV_CATEGORIES}")
+            st.page_link("pages/category_new.py", label=PAGE_NEW, icon=ICON_NEW)
+            st.page_link("pages/category_mng.py", label=PAGE_MANAGE, icon=ICON_MANAGE)
+
+            st.markdown(f"### {NAV_OFFERS}")
+            st.page_link(offer_page_path, label=PAGE_NEW, icon=ICON_NEW)
+            st.page_link("pages/offer_reports.py", label=PAGE_REPORT, icon=ICON_REPORTS)
+        else:
+            st.markdown(f"### {NAV_OFFERS}")
+            st.page_link(offer_page_path, label=PAGE_NEW, icon=ICON_NEW)
+        # pages = {
+        #     NAV_PROJECTS: [
+        #         st.Page("project_new.py", title=PAGE_NEW, icon=ICON_NEW),
+        #         st.Page("project_mng.py", title=PAGE_MANAGE, icon=ICON_MANAGE),
+        #     ],
+        #     NAV_BUSINESSES: [
+        #         st.Page("business_new.py", title=PAGE_NEW, icon=ICON_NEW),
+        #         st.Page("business_mng.py", title=PAGE_MANAGE, icon=ICON_MANAGE),
+        #     ],
+        #     NAV_CATEGORIES: [
+        #         st.Page("category_new.py", title=PAGE_NEW, icon=ICON_NEW),
+        #         st.Page("category_mng.py", title=PAGE_MANAGE, icon=ICON_MANAGE),
+        #     ],
+        #     NAV_OFFERS: [
+        #         st.Page("offer_new.py", title=PAGE_NEW, icon=ICON_NEW),
+        #         st.Page("offer_reports.py", title=PAGE_REPORT, icon=ICON_REPORTS),
+        #     ],
+        # }
+        # pg = st.navigation(pages)
+        # pg.run()
 
 def get_user_permission_name(username: str) -> str:
     """
@@ -27,15 +77,15 @@ def get_user_permission_name(username: str) -> str:
         permission_id = user_data.get('permission_id')
         if not permission_id:
             return None
-            
+
         # שליפת שם ההרשאה לפי permission_id
         permissions = fetch_permissions()
         for perm in permissions:
             if perm.get('permission_id') == permission_id:
                 return perm.get('permission_name')
-        
+
         return None
-        
+
     except Exception as e:
         st.error(f"שגיאה בשליפת הרשאות המשתמש: {e}")
         return None
@@ -54,15 +104,15 @@ def check_user_permission(required_permissions: list) -> bool:
     # בדיקה אם המשתמש מחובר
     if not st.session_state.get('logged_in', False):
         return False
-    
+
     username = get_username()
     if not username:
         return False
-    
+
     user_permission = get_user_permission_name(username)
     if not user_permission:
         return False
-    
+
     # בדיקה אם ההרשאה של המשתמש נמצאת ברשימת ההרשאות הנדרשות
     return user_permission in required_permissions
 
@@ -73,21 +123,21 @@ def show_permission_error(required_permissions: list, current_permission: str = 
     """
     username = get_username()
     current_perm_text = f" (הרשאה נוכחית: {current_permission})" if current_permission else ""
-    
+
     st.error(
         f"🚫 **אין לך הרשאה לגשת לעמוד זה**\n\n"
         f"משתמש: {username}{current_perm_text}\n\n"
         f"הרשאות נדרשות: {', '.join(required_permissions)}"
     )
-    
+
     st.info(
         "💡 **מה ניתן לעשות?**\n"
         "- פנה למנהל המערכת לעדכון הרשאות\n"
         "- חזור לעמוד הראשי\n"
         "- התנתק והתחבר עם משתמש אחר"
     )
-    
-    # כפתורים לפעולות נוספות
+
+    # # כפתורים לפעולות נוספות
     col1, col2 = st.columns(2)
     with col1:
         if st.button("🏠 חזור לעמוד הראשי", use_container_width=True):
@@ -110,6 +160,7 @@ def require_permission(*required_permissions):
     Args:
         *required_permissions: הרשאות נדרשות (ניתן להעביר כמה הרשאות)
     """
+
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -119,26 +170,27 @@ def require_permission(*required_permissions):
                 st.info("אנא התחבר כדי לגשת לתוכן זה")
                 st.stop()
                 return None
-            
+
             # בדיקת הרשאות
             username = get_username()
             if not username:
                 st.error("🚫 **שגיאה בזיהוי המשתמש**")
                 st.stop()
                 return None
-            
+
             user_permission = get_user_permission_name(username)
             permissions_list = list(required_permissions)
-            
+
             if not check_user_permission(permissions_list):
                 show_permission_error(permissions_list, user_permission)
                 st.stop()
                 return None
-            
+
             # אם הגענו לכאן, יש למשתמש הרשאה מתאימה
             return func(*args, **kwargs)
-        
+
         return wrapper
+
     return decorator
 
 
@@ -152,6 +204,7 @@ def admin_only(func):
             pass
     """
     return require_permission('Admin')(func)
+
 
 # -- Streamlit related helpers --
 @st.dialog("הקצאת עסקים לקטגוריות")

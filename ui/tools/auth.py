@@ -55,11 +55,9 @@ def logout():
     """
     פונקציית יציאה מהמערכת
     """
-
-    if st.button("התנתק", type="secondary", use_container_width=True):
-        st.session_state['logged_in'] = False
-        st.toast("✅ התנתקת בהצלחה!")
-        st.rerun()
+    st.session_state['logged_in'] = False
+    st.toast("✅ התנתקת בהצלחה!")
+    st.rerun()
 
 
 def get_username():
