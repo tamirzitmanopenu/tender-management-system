@@ -18,9 +18,7 @@ cursor.executescript(f"""
 
 INSERT INTO Permission (permission_id, permission_name) VALUES
 (1, 'Admin'),
-(2, 'Editor'),
-(3, 'Viewer'),
-(4, 'Supplier');
+(2, 'Supplier');
 
 INSERT INTO User (username, permission_id, full_name, email, password, phone, user_type) VALUES
 ('admin1', 1, 'אורי כהן', 'tamirzitman@gmail.com', 'pass123', '050-1234567', 'employee'),
