@@ -1,9 +1,14 @@
+import os
 import streamlit as st
 
 
 def authenticate_user(password: str) -> bool:
-    """בדיקת סיסמה קבועה"""
-    return password == "123"
+    """בדיקת סיסמה מול ערך מהסביבה (APP_PASSWORD)"""
+    expected_password = os.environ.get("APP_PASSWORD")
+    if expected_password is None:
+        # לא הוגדרה סיסמה בסביבה, דחה את כל הנסיונות
+        return False
+    return password == expected_password
 
 
 def login() -> bool:
