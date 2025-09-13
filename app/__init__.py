@@ -50,6 +50,7 @@ def create_app():
     app.config['CategoryService'] = CategoryService(repo)
     app.config['ProjectService'] = ProjectService(repo)
     upload_folder = os.path.join(os.path.dirname(__file__), "uploads")
+    os.makedirs(upload_folder, exist_ok=True)
     app.config['FileService'] = FileService(db=repo, upload_folder=upload_folder)
     app.config['ProjectTaskService'] = ProjectTaskService(repo)
     app.config['OfferService'] = OfferService(repo)
