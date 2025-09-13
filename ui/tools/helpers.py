@@ -66,12 +66,14 @@ def define_sidebar(user_permission):
         # pg = st.navigation(pages)
         # pg.run()
 
+
 def get_user_permission_name(username: str) -> str:
     """
     מקבל שם משתמש ומחזיר את שם ההרשאה שלו מבסיס הנתונים
     """
     try:
         user_data = fetch_user_details(username)
+        print(f"user_data is :{user_data}")
         if not user_data:
             return None
         permission_id = user_data.get('permission_id')
@@ -141,8 +143,8 @@ def show_permission_error(required_permissions: list, current_permission: str = 
     col1, col2 = st.columns(2)
     with col1:
         if st.button("🏠 חזור לעמוד הראשי", use_container_width=True):
-            st.switch_page("streamlit_app.py")
-    
+            st.switch_page("pages/offer_new.py")
+
     with col2:
         if st.button("🚪 התנתק", use_container_width=True):
             logout()

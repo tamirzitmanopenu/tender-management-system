@@ -10,8 +10,13 @@ from settings.constants import FETCH_PROJECTS, FETCH_CATEGORIES, FETCH_TASKS, FE
 
 
 @st.cache_data(show_spinner=FETCH_PROJECTS)
-def fetch_projects() -> list:
-    resp = get("/projects")
+def fetch_projects(username: str = None) -> list:
+    if username is not None:
+        resp = get('/user/accessible-projects', json={"username": username})
+    else:
+        resp = get("/projects")
+    print("-------------------------------")
+    print(resp.json())
     if getattr(resp, "ok", False):
         return resp.json().get("data", [])
     return []
@@ -127,8 +132,6 @@ def fetch_user_details(username: str) -> dict:
         return resp.json().get("data", {})
     return {}
 
-
-@st.cache_data
 def fetch_permissions() -> list:
     """
     מחזיר רשימת כל ההרשאות במערכת
