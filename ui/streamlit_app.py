@@ -15,6 +15,8 @@ from settings.constants import (
 )
 from dotenv import load_dotenv
 
+from tools.auth import login, logout
+
 
 def init_session_state():
     if 'business_selections' not in st.session_state:
@@ -23,7 +25,8 @@ def init_session_state():
         st.session_state.prices = {}
     if "comparison_data" not in st.session_state:
         st.session_state["comparison_data"] = None
-
+    if "logged_in" not in st.session_state:
+        st.session_state['logged_in'] = False
 
 st.set_page_config(
     page_icon=ICON_OFFERS,
@@ -64,8 +67,19 @@ if logo_path.exists():
     st.sidebar.image(str(logo_path))
 if st.sidebar.button("", icon=ICON_REFRESH, help="רענון נתונים", width="stretch"):
     st.cache_data.clear()
-st.sidebar.text_input("Current User Name", key="user", value="sup1", help="שם המשתמש הנוכחי")
 st.sidebar.title(f"{env}")
+
+
+if not st.session_state.logged_in:
+    # שימוש בפונקציה
+    if not login():
+        st.stop()
+else:
+    with st.sidebar:
+        st.subheader(f"  👋 יציאה מהמערכת")
+        st.write(f"משתמש מחובר  {st.session_state['user']}")
+        logout()
+
 pg = st.navigation(pages)
 pg.run()
 

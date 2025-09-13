@@ -11,10 +11,13 @@ from settings.constants import (
     ICON_SEND,
 )
 from tools.fetch_data import fetch_business_category, fetch_projects, fetch_categories, fetch_tasks, fetch_user_details
+from ui.tools.auth import get_username
+
+username = get_username()
 
 st.header(OFFER_HEADER)
 
-projects:list[dict] = fetch_projects()
+projects: list[dict] = fetch_projects()
 project_map = {p['name']: p for p in projects}
 
 project_name = st.selectbox(SELECT_PROJECT, [p['name'] for p in projects])
@@ -46,7 +49,9 @@ with st.container(border=True):
             quantity = task.get('quantity', 0)
 
             with col1:
+                st.caption(f"{task['sub_category']}")
                 st.markdown(f"**{task['description']}**")
+
                 st.caption(f"יחידת מידה: {task['unit']}")
                 st.caption(f"כמות: {quantity}")
 
@@ -78,8 +83,8 @@ if submitted:
         {"project_task_id": str(task_id), "price_offer": price}
         for task_id, price in prices.items()
     ]
-    business_id = fetch_user_details(username=st.session_state.user).get('business_id')
-    business_categories : list[dict] = fetch_business_category(category_id=category_id, business_id=business_id)
+    business_id = fetch_user_details(username).get('business_id')
+    business_categories: list[dict] = fetch_business_category(category_id=category_id, business_id=business_id)
     if not business_categories:
         st.error("לא נמצאה קטגוריה עסקית עבור העסק שלך בקטגוריה זו. לא ניתן להגיש הצעה.")
         st.stop()
