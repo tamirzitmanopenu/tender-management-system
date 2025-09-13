@@ -36,3 +36,41 @@ class ProjectService:
             updates={'deleted': 1, 'modified_at': now_iso()},
             filters={'project_id': project_id}
         )
+
+    def get_projects_by_business_categories(self, business_categories):
+        """
+        Get projects that are accessible based on business categories.
+        
+        Args:
+            business_categories: List of business category records or single business category record
+            
+        Returns:
+            List of project records that match the business categories
+        """
+        if not business_categories:
+            return []
+        
+        # Handle both single record and list of records
+        if isinstance(business_categories, dict):
+            business_categories = [business_categories]
+        
+        # Extract business_category_ids
+        business_category_ids = [str(bc['business_category_id']) for bc in business_categories]
+        
+        if not business_category_ids:
+            return []
+        
+        # Create placeholders for the IN clause
+        placeholders = ','.join(['?' for _ in business_category_ids])
+        
+        # Query to get projects that have business category selections matching the user's business categories
+        query = f"""
+        SELECT DISTINCT p.*
+        FROM Project p
+        JOIN BusinessCategorySelection bcs ON p.project_id = bcs.project_id
+        WHERE bcs.business_category_id IN ({placeholders})
+        AND p.deleted = 0
+        ORDER BY p.created_at DESC
+        """
+        
+        return self.db.query_all(query, business_category_ids)

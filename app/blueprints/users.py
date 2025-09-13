@@ -43,3 +43,29 @@ def get_user_business_categories():
     except Exception as e:
         log_event(f"[User][ERROR] Business categories retrieval failed for username={username}: {e}", level="ERROR")
         return jsonify({"error": "Failed to retrieve user business categories"}), 500
+
+@bp.get("/user/accessible-projects")
+def get_user_accessible_projects():
+    data, err = require_params("username")
+    if err:
+        return err
+    username = data.get("username", None)
+    user_service = current_app.config["UserService"]
+    bc_service = current_app.config["BusinessCategoryService"]
+    project_service = current_app.config["ProjectService"]
+
+    try:
+        user_details = user_service.get_full_user_details(username=username)
+        business_categories = bc_service.get_business_category(business_id=user_details['business_id'])
+        
+        # Get projects based on business category selections
+        accessible_projects = project_service.get_projects_by_business_categories(business_categories)
+        
+        log_event(f"[User] Retrieved accessible projects for username={username}")
+        return jsonify({
+            'status': 'success',
+            'data': accessible_projects
+        }), 200
+    except Exception as e:
+        log_event(f"[User][ERROR] Accessible projects retrieval failed for username={username}: {e}", level="ERROR")
+        return jsonify({"error": "Failed to retrieve accessible projects"}), 500
