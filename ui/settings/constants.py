@@ -103,7 +103,7 @@ PROJECT_NEW_HEADER = "פרויקט חדש"
 
 FIELD_LABELS = {
     "new_project_name": "שם הפרויקט",
-    "new_deadline": "תאריך היעד",
+    "new_deadline": "תאריך יעד לקבלת הצעות",
     "uploaded_skn": "קובץ כתב כמויות",
     "uploaded_other": "קובץ נוסף",
     "file_type": "סוג הקובץ"

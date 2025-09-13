@@ -51,3 +51,39 @@ class BusinessCategoryService:
         if project_id is not None:
             filters['project_id'] = project_id
         return self.db.get_table_record(table='BusinessCategorySelection', filters=filters)
+
+    def get_business_category_user_contact(self, business_category_id: str = None,
+                                           business_category_selection: str = None):
+        if business_category_id is not None:
+            query = """
+            SELECT *
+            FROM BusinessCategory 
+            JOIN User on User.username = BusinessCategory.supplier_contact
+            JOIN Business ON Business.business_id = BusinessCategory.business_id
+            WHERE BusinessCategory.business_category_id = ?
+            """
+            return self.db.query_one(query, (business_category_id,))
+        elif business_category_selection is not None:
+            query = """
+            SELECT *
+            FROM BusinessCategory as bc
+            JOIN User on User.username = bc.supplier_contact
+            JOIN Business ON Business.business_id = bc.business_id
+            JOIN BusinessCategorySelection ON BusinessCategorySelection.business_category_id = bc.business_category_id
+            WHERE BusinessCategorySelection.selection_id = ?
+            """
+            return self.db.query_one(query, (business_category_selection,))
+        else:
+            raise ValueError("Either business_category_id or business_category_selection must be provided.")
+
+
+if __name__ == "__main__":
+    # Example of how to integrate with your existing app utilities
+    from db.db import get_db
+    from dotenv import load_dotenv
+
+    load_dotenv()
+    db = get_db()
+
+    serv = BusinessCategoryService(db)
+    print(serv.get_business_category_user_contact(business_category_id='1'))

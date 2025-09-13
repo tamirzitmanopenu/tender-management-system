@@ -10,13 +10,18 @@ from settings.constants import (
     OFFER_SUBMIT_ERROR,
     ICON_SEND,
 )
-from tools.fetch_data import fetch_projects, fetch_categories, fetch_tasks
+from tools.fetch_data import fetch_business_category, fetch_projects, fetch_categories, fetch_tasks, fetch_user_details
+from ui.tools.auth import get_username
+
+username = get_username()
 
 st.header(OFFER_HEADER)
 
-projects = fetch_projects()
-project_name = st.selectbox(SELECT_PROJECT, list(projects.keys()))
-project_id = projects.get(project_name)
+projects: list[dict] = fetch_projects()
+project_map = {p['name']: p for p in projects}
+
+project_name = st.selectbox(SELECT_PROJECT, [p['name'] for p in projects])
+project_id = project_map[project_name]['project_id']
 
 categories = fetch_categories(project_id=project_id)
 category_name = st.selectbox(OFFER_SELECT_CATEGORY, list(categories.keys()))
@@ -44,7 +49,9 @@ with st.container(border=True):
             quantity = task.get('quantity', 0)
 
             with col1:
+                st.caption(f"{task['sub_category']}")
                 st.markdown(f"**{task['description']}**")
+
                 st.caption(f"יחידת מידה: {task['unit']}")
                 st.caption(f"כמות: {quantity}")
 
@@ -76,9 +83,15 @@ if submitted:
         {"project_task_id": str(task_id), "price_offer": price}
         for task_id, price in prices.items()
     ]
+    business_id = fetch_user_details(username).get('business_id')
+    business_categories: list[dict] = fetch_business_category(category_id=category_id, business_id=business_id)
+    if not business_categories:
+        st.error("לא נמצאה קטגוריה עסקית עבור העסק שלך בקטגוריה זו. לא ניתן להגיש הצעה.")
+        st.stop()
+    business_category_id = business_categories[0].get('business_category_id') if business_categories else None
     data = {
         "project_id": str(project_id),
-        "business_category_id": str(category_id),
+        "business_category_id": str(business_category_id),
         "items": items,
     }
     resp = post("/offers", json=data)
@@ -86,3 +99,4 @@ if submitted:
         st.success(OFFER_SUBMIT_SUCCESS)
     else:
         st.error(OFFER_SUBMIT_ERROR)
+        print(f"resp.json(): {resp.json()}")

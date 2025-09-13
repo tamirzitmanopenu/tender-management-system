@@ -22,7 +22,11 @@ def add_project():
 @bp.get("/projects")
 def list_projects():
     service = current_app.config["ProjectService"]
-    return jsonify(service.list_all_projects())
+    return jsonify({
+        'status': 'success',
+        'data': service.list_all_projects()
+    }), 200
+
 
 
 # Get project details קבלת פרטי פרויקט
@@ -36,6 +40,7 @@ def get_project(project_id: str):
     return jsonify(row)
 
 
+# Soft delete a project by marking it as deleted
 @bp.delete("/projects/<project_id>")
 def delete_project(project_id: str):
     service = current_app.config["ProjectService"]

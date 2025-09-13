@@ -10,10 +10,14 @@ def now_iso():
 
 
 def actor_from_headers():
-    return request.headers.get("X-User")
+    user = request.headers.get("X-User")
+    if user is None:
+        raise Exception("User was not specified on the Headers")
+    return user
 
 
 def log_event(message, username=None, level="INFO"):
+    print(f"Print Log: [{level}] {message}")
     if username is None:
         username = actor_from_headers()
     get_db().execute(

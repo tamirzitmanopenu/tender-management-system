@@ -1,19 +1,25 @@
 import json
 from io import BytesIO
+from datetime import datetime
 
 import pandas as pd
 import streamlit as st
 
 from settings.constants import FIELD_LABELS, SELECT_BUSINESSES, ICON_SEND
-from tools.fetch_data import fetch_business, fetch_categories, fetch_business_category
+from tools.fetch_data import fetch_business, fetch_categories, fetch_business_category, \
+    fetch_business_category_selection
 from tools.add_data import register_business_category_selection, register_business_category
 
-from tools.api import delete, get
+from tools.api import delete, get, post
 
 
 # -- Streamlit related helpers --
 @st.dialog("הקצאת עסקים לקטגוריות")
-def business_category_selection(project_id: str):
+def business_category_selection(project: dict):
+    project_id = project.get("project_id")
+    project_name = project.get("project_name")
+    project_deadline = project.get("project_deadline", "טרם נקבע")
+
     all_business = fetch_business()
     categories = fetch_categories(project_id=project_id)
     if not categories:
@@ -29,8 +35,7 @@ def business_category_selection(project_id: str):
             in_category = [b for b in all_business if b['business_id'] in business_ids_in_category]
             not_in_category = [b for b in all_business if b['business_id'] not in business_ids_in_category]
 
-            # Combine the lists: show in-category businesses first
-            businesses_list = in_category + not_in_category
+            # Enable in-category businesses first
 
             st.caption(f"{category_name}")
 
@@ -38,10 +43,18 @@ def business_category_selection(project_id: str):
             key = f"bs_p{project_id}_c{category_id}"
             selected_businesses = st.pills(
                 label=SELECT_BUSINESSES,
-                options=businesses_list,
+                options=in_category,
                 key=key,
                 format_func=lambda x: x["company_name"],
-                selection_mode="multi"
+                selection_mode="multi",
+            )
+            st.pills(
+                label="קבלני משנה שאינם רשומים בקטגוריה",
+                options=not_in_category,
+                key=f"{key}_non",
+                format_func=lambda x: x["company_name"],
+                help="אין אפשרות לבחור בקבלני משנה שאינם רשומים בקטגוריה - יש לרשום אותם בחלון ניהול קבלני משנה",
+                disabled=True
             )
 
             if selected_businesses:
@@ -61,12 +74,12 @@ def business_category_selection(project_id: str):
             business_categories = fetch_business_category(category_id=category_id)
 
             for business in selected_businesses:
+                # TODO: validate business_id with the selected business_id and current category_id isn't already exist
                 business_id = business["business_id"]
                 business_category_id = next(
                     (bc["business_category_id"] for bc in business_categories if bc["business_id"] == business_id),
                     None
                 )
-
                 # Handle missing category association
                 if business_category_id is None:
                     try:
@@ -74,13 +87,56 @@ def business_category_selection(project_id: str):
                         business_category_id = bc_resp.get("business_category_id")
                     except Exception as e:
                         st.error(e)
+
+                # Validates selection_id isn't already exist
                 if business_category_id:
-                    business_category_items.append({
-                        "business_category_id": str(business_category_id),
-                    })
+                    existing = fetch_business_category_selection(project_id=project_id,
+                                                                 business_category_id=business_category_id)
+                    if not existing:
+                        business_category_items.append({
+                            "business_category_id": str(business_category_id),
+                        })
+
+        if not business_category_items:
+            st.warning("לא נמצאו בחירות חדשות")
+            return
         try:
             bcs_resp = register_business_category_selection(project_id, business_category_items)
             print(bcs_resp)
+
+            # שליחת מיילים לאחר רישום מוצלח
+            if bcs_resp and "created" in bcs_resp:
+                selection_ids = [
+                    item["selection_id"]
+                    for item in bcs_resp["created"]
+                    if "selection_id" in item
+                ]
+
+                if selection_ids:
+                    try:
+                        formatted_deadline = datetime.strptime(project_deadline, "%Y-%m-%d").strftime("%d/%m/%Y")
+                    except ValueError:
+                        print("תאריך הדדליין של הפרויקט אינו בפורמט תקין (YYYY-MM-DD).")
+                        formatted_deadline = "—"
+
+                    email_data = {
+                        "items": selection_ids,
+                        "subject": "הזמנה להגשת הצעה למכרז",
+                        "template_id": "request_offer",
+                        "template_variables": {
+                            "project_name": project_name,
+                            "deadline": formatted_deadline,
+                        }
+                    }
+
+                    email_resp = post("/send_emails/bulk", json=email_data)
+                    if email_resp.ok:
+                        if email_resp.json().get("invalid_items"):
+                            st.warning("נרשמו בחירות אך חלק מההזמנות לא נשלחו")
+                        st.success("נשלחו הזמנות בהצלחה")
+                    else:
+                        st.warning("נרשם בהצלחה אך שליחת המיילים נכשלה")
+
         except Exception as e:
             st.error(e)
             st.stop()
