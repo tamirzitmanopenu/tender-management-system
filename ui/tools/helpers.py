@@ -15,11 +15,11 @@ from tools.api import delete, get, post
 
 # -- Streamlit related helpers --
 @st.dialog("הקצאת עסקים לקטגוריות")
-def business_category_selection(project:dict):
+def business_category_selection(project: dict):
     project_id = project.get("project_id")
     project_name = project.get("project_name")
-    project_deadline = project.get("project_deadline","טרם נקבע")
-    
+    project_deadline = project.get("project_deadline", "טרם נקבע")
+
     all_business = fetch_business()
     categories = fetch_categories(project_id=project_id)
     if not categories:
@@ -90,7 +90,8 @@ def business_category_selection(project:dict):
 
                 # Validates selection_id isn't already exist
                 if business_category_id:
-                    existing = fetch_business_category_selection(project_id=project_id, business_category_id=business_category_id)
+                    existing = fetch_business_category_selection(project_id=project_id,
+                                                                 business_category_id=business_category_id)
                     if not existing:
                         business_category_items.append({
                             "business_category_id": str(business_category_id),
@@ -111,11 +112,13 @@ def business_category_selection(project:dict):
                     if "selection_id" in item
                 ]
 
-                if selection_ids:   
-                    formatted_deadline = (
-                        datetime.strptime(project_deadline, "%Y-%m-%d").strftime("%d/%m/%Y")
-                        if project_deadline else "—"
-                    )
+                if selection_ids:
+                    try:
+                        formatted_deadline = datetime.strptime(project_deadline, "%Y-%m-%d").strftime("%d/%m/%Y")
+                    except ValueError:
+                        print("תאריך הדדליין של הפרויקט אינו בפורמט תקין (YYYY-MM-DD).")
+                        formatted_deadline = "—"
+
                     email_data = {
                         "items": selection_ids,
                         "subject": "הזמנה להגשת הצעה למכרז",

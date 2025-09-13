@@ -127,7 +127,7 @@ def send_bulk_emails_by_selection_bc():
 
         return jsonify({
             "message": "Bulk email completed",
-            "sucess": result,
+            "success": result,
             "resolved_recipients": len(recipients),
             "invalid_items": invalid_items
         }), 200

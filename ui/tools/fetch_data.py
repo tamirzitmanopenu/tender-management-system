@@ -63,7 +63,8 @@ def fetch_business():
 def fetch_business_category(category_id: str = None, business_id:str=None):
     url = "/business-category"
     
-    # if business_id is None and category_id is None:
+    if business_id is None and category_id is None:
+        raise ValueError("At least one parameter (category_id or business_id) must be provided")
         
     params = {}
     if category_id is not None:
