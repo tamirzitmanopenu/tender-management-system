@@ -8,7 +8,7 @@ def authenticate_user(password: str) -> bool:
     if expected_password is None:
         # לא הוגדרה סיסמה בסביבה, דחה את כל הנסיונות
         return False
-    return password == expected_password
+    return password == str(expected_password)
 
 
 def login() -> bool:
