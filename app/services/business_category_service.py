@@ -74,7 +74,7 @@ class BusinessCategoryService:
             """
             return self.db.query_one(query, (business_category_selection,))
         else:
-            raise ValueError("....")
+            raise ValueError("Either business_category_id or business_category_selection must be provided.")
 
 
 if __name__ == "__main__":
