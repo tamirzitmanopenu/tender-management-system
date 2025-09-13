@@ -1,22 +1,17 @@
 import os
+
 from pathlib import Path
 
 import streamlit as st
 
 from tools.design import set_rtl
 from settings.constants import (
-    WEBSITE_TITLE,
-    NAV_PROJECTS,
-    NAV_BUSINESSES,
-    NAV_CATEGORIES,
-    NAV_OFFERS,
-    PAGE_MANAGE,
-    PAGE_NEW, ICON_MANAGE, ICON_NEW, ICON_OFFERS, PAGE_REPORT, ICON_REPORTS, ICON_REFRESH, WEBSITE_LOGO_PATH,
+    WEBSITE_TITLE, ICON_OFFERS, ICON_REFRESH, WEBSITE_LOGO_PATH,
 )
 from dotenv import load_dotenv
 
-from tools.auth import login, logout
-from tools.helpers import require_permission
+from tools.auth import login, logout, get_username
+from tools.helpers import get_user_permission_name, define_sidebar
 
 
 def init_session_state():
