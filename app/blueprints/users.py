@@ -4,6 +4,22 @@ from utilities import require_params, log_event
 
 bp = Blueprint("users", __name__)
 
+@bp.get("/permissions")
+def get_permissions():
+    """
+    מחזיר רשימת כל ההרשאות במערכת
+    """
+    try:
+        user_service = current_app.config["UserService"]
+        permissions = user_service.get_all_permissions()
+        log_event(f"[Permissions] Retrieved all permissions")
+        return jsonify(permissions), 200
+    except Exception as e:
+        log_event(f"[Permissions][ERROR] Failed to retrieve permissions: {e}", level="ERROR")
+        return jsonify({"error": "Failed to retrieve permissions"}), 500
+
+
+
 @bp.get("/user/details")
 def get_user():
     data, err = require_params("username")

@@ -16,6 +16,7 @@ from settings.constants import (
 from dotenv import load_dotenv
 
 from tools.auth import login, logout
+from tools.helpers import require_permission
 
 
 def init_session_state():
@@ -42,8 +43,10 @@ init_session_state()
 
 st.header(WEBSITE_TITLE)
 st.divider()
-
-pages = {
+@require_permission('Employee', 'Admin')
+def employee_function():
+    st.title("לעובדים ומנהלים")
+    pages = {
     NAV_PROJECTS: [
         st.Page("project_new.py", title=PAGE_NEW, icon=ICON_NEW),
         st.Page("project_mng.py", title=PAGE_MANAGE, icon=ICON_MANAGE),
@@ -60,7 +63,10 @@ pages = {
         st.Page("offer_new.py", title=PAGE_NEW, icon=ICON_NEW),
         st.Page("offer_reports.py", title=PAGE_REPORT, icon=ICON_REPORTS),
     ],
-}
+    }
+    pg = st.navigation(pages)
+    pg.run()
+
 logo_path = Path(WEBSITE_LOGO_PATH)
 
 if logo_path.exists():
@@ -80,8 +86,6 @@ else:
         st.write(f"משתמש מחובר  {st.session_state['user']}")
         logout()
 
-pg = st.navigation(pages)
-pg.run()
-
+employee_function()
 st.divider()
 # footer

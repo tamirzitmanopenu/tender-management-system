@@ -1,17 +1,157 @@
 import json
 from io import BytesIO
 from datetime import datetime
+from functools import wraps
 
 import pandas as pd
 import streamlit as st
 
 from settings.constants import FIELD_LABELS, SELECT_BUSINESSES, ICON_SEND
 from tools.fetch_data import fetch_business, fetch_categories, fetch_business_category, \
-    fetch_business_category_selection
+    fetch_business_category_selection, fetch_user_details, fetch_permissions
 from tools.add_data import register_business_category_selection, register_business_category
-
+from tools.auth import get_username, logout
 from tools.api import delete, get, post
 
+
+# -- Permission Management and Authorization --
+
+def get_user_permission_name(username: str) -> str:
+    """
+    מקבל שם משתמש ומחזיר את שם ההרשאה שלו מבסיס הנתונים
+    """
+    try:
+        user_data = fetch_user_details(username)
+        if not user_data:
+            return None
+        permission_id = user_data.get('permission_id')
+        if not permission_id:
+            return None
+            
+        # שליפת שם ההרשאה לפי permission_id
+        permissions = fetch_permissions()
+        for perm in permissions:
+            if perm.get('permission_id') == permission_id:
+                return perm.get('permission_name')
+        
+        return None
+        
+    except Exception as e:
+        st.error(f"שגיאה בשליפת הרשאות המשתמש: {e}")
+        return None
+
+
+def check_user_permission(required_permissions: list) -> bool:
+    """
+    בודק אם למשתמש הנוכחי יש את ההרשאות הנדרשות
+    
+    Args:
+        required_permissions: רשימה של שמות הרשאות נדרשות
+    
+    Returns:
+        True אם יש למשתמש הרשאה מתאימה, False אחרת
+    """
+    # בדיקה אם המשתמש מחובר
+    if not st.session_state.get('logged_in', False):
+        return False
+    
+    username = get_username()
+    if not username:
+        return False
+    
+    user_permission = get_user_permission_name(username)
+    if not user_permission:
+        return False
+    
+    # בדיקה אם ההרשאה של המשתמש נמצאת ברשימת ההרשאות הנדרשות
+    return user_permission in required_permissions
+
+
+def show_permission_error(required_permissions: list, current_permission: str = None):
+    """
+    מציג הודעת שגיאה כשאין למשתמש הרשאה מתאימה
+    """
+    username = get_username()
+    current_perm_text = f" (הרשאה נוכחית: {current_permission})" if current_permission else ""
+    
+    st.error(
+        f"🚫 **אין לך הרשאה לגשת לעמוד זה**\n\n"
+        f"משתמש: {username}{current_perm_text}\n\n"
+        f"הרשאות נדרשות: {', '.join(required_permissions)}"
+    )
+    
+    st.info(
+        "💡 **מה ניתן לעשות?**\n"
+        "- פנה למנהל המערכת לעדכון הרשאות\n"
+        "- חזור לעמוד הראשי\n"
+        "- התנתק והתחבר עם משתמש אחר"
+    )
+    
+    # כפתורים לפעולות נוספות
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("🏠 חזור לעמוד הראשי", use_container_width=True):
+            st.switch_page("streamlit_app.py")
+    
+    with col2:
+        if st.button("🚪 התנתק", use_container_width=True):
+            logout()
+
+
+def require_permission(*required_permissions):
+    """
+    Decorator להגבלת גישה לפונקציות לפי הרשאות משתמש
+    
+    Usage:
+        @require_permission('Admin', 'Manager')
+        def my_admin_function():
+            pass
+    
+    Args:
+        *required_permissions: הרשאות נדרשות (ניתן להעביר כמה הרשאות)
+    """
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            # בדיקה אם המשתמש מחובר
+            if not st.session_state.get('logged_in', False):
+                st.error("🔒 **נדרשת התחברות למערכת**")
+                st.info("אנא התחבר כדי לגשת לתוכן זה")
+                st.stop()
+                return None
+            
+            # בדיקת הרשאות
+            username = get_username()
+            if not username:
+                st.error("🚫 **שגיאה בזיהוי המשתמש**")
+                st.stop()
+                return None
+            
+            user_permission = get_user_permission_name(username)
+            permissions_list = list(required_permissions)
+            
+            if not check_user_permission(permissions_list):
+                show_permission_error(permissions_list, user_permission)
+                st.stop()
+                return None
+            
+            # אם הגענו לכאן, יש למשתמש הרשאה מתאימה
+            return func(*args, **kwargs)
+        
+        return wrapper
+    return decorator
+
+
+def admin_only(func):
+    """
+    Decorator מקוצר לפונקציות שדורשות הרשאת Admin בלבד
+    
+    Usage:
+        @admin_only
+        def my_admin_function():
+            pass
+    """
+    return require_permission('Admin')(func)
 
 # -- Streamlit related helpers --
 @st.dialog("הקצאת עסקים לקטגוריות")

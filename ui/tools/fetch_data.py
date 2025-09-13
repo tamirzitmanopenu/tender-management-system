@@ -127,3 +127,15 @@ def fetch_user_details(username:str) -> dict:
     if getattr(resp, "ok", False):
         return resp.json().get("data", {})
     return {}
+
+
+@st.cache_data
+def fetch_permissions() -> list:
+    """
+    מחזיר רשימת כל ההרשאות במערכת
+    """
+    resp = get("/permissions")
+    if getattr(resp, "ok", False):
+        return resp.json()
+    return []
+

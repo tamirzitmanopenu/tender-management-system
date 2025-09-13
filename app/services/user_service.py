@@ -24,3 +24,18 @@ class UserService:
 
         return user
     
+
+    def get_all_permissions(self):
+        """
+        מחזיר רשימת כל ההרשאות הזמינות במערכת
+        
+        Returns:
+            list: רשימה של כל ההרשאות עם permission_id ו-permission_name
+        """
+        try:
+            permissions = self.db.get_table_record(table='Permission')
+            return permissions if permissions else []
+        except Exception as e:
+            print(f"Error retrieving permissions: {e}")
+            raise ValueError(f"Failed to retrieve permissions: {e}")
+    
