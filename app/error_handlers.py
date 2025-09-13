@@ -8,7 +8,7 @@ def register_error_handlers(app):
         return jsonify({
             "success": False,
             "error": "Endpoint not found",
-            "message": "The requested email endpoint was not found"
+            "message": "The endpoint was not found"
         }), 404
 
     @app.errorhandler(405)
