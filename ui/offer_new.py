@@ -11,7 +11,7 @@ from settings.constants import (
     ICON_SEND,
 )
 from tools.fetch_data import fetch_business_category, fetch_projects, fetch_categories, fetch_tasks, fetch_user_details
-from ui.tools.auth import get_username
+from tools.auth import get_username
 
 username = get_username()
 
