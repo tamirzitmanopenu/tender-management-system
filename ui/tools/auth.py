@@ -1,6 +1,22 @@
 import os
 import streamlit as st
 
+from settings.constants import (
+    BUTTON_TYPE_PRIMARY,
+    LOGIN_HEADER,
+    LOGIN_INFO_PROMPT,
+    LOGIN_INVALID_CREDENTIALS_ERROR,
+    LOGIN_PASSWORD_LABEL,
+    LOGIN_PASSWORD_PLACEHOLDER,
+    LOGIN_PASSWORD_REQUIRED_ERROR,
+    LOGIN_SUBMIT_BUTTON_LABEL,
+    LOGIN_SUCCESS_TOAST,
+    LOGIN_USERNAME_LABEL,
+    LOGIN_USERNAME_PLACEHOLDER,
+    LOGIN_USERNAME_REQUIRED_ERROR,
+    LOGOUT_SUCCESS_TOAST,
+)
+
 
 def authenticate_user(username: str, password: str) -> bool:
     """בדיקת פרטי משתמש מול מסד הנתונים"""
@@ -21,36 +37,40 @@ def login() -> bool:
     פונקציית התחברות למערכת
     מחזירה True אם ההתחברות הצליחה, False אחרת
     """
-    st.subheader("🔐 התחברות למערכת")
+    st.subheader(LOGIN_HEADER)
 
     # שדות קלט
-    username = st.text_input("שם משתמש:", placeholder="הזן את שם המשתמש שלך")
-    password = st.text_input("סיסמה:", type="password", placeholder="הזן את הסיסמה")
+    username = st.text_input(LOGIN_USERNAME_LABEL, placeholder=LOGIN_USERNAME_PLACEHOLDER)
+    password = st.text_input(
+        LOGIN_PASSWORD_LABEL,
+        type="password",
+        placeholder=LOGIN_PASSWORD_PLACEHOLDER
+    )
 
     # כפתור התחברות
-    if st.button("התחבר", type="primary", use_container_width=True):
+    if st.button(LOGIN_SUBMIT_BUTTON_LABEL, type=BUTTON_TYPE_PRIMARY, use_container_width=True):
         if not username:
-            st.error("❌ נא להזין שם משתמש")
+            st.error(LOGIN_USERNAME_REQUIRED_ERROR)
             return False
 
         if not password:
-            st.error("❌ נא להזין סיסמה")
+            st.error(LOGIN_PASSWORD_REQUIRED_ERROR)
             return False
 
         # בדיקת פרטי ההתחברות
         if authenticate_user(username, password):
-            st.toast(f"✅ ברוך הבא, {username}!")
+            st.toast(LOGIN_SUCCESS_TOAST.format(username=username))
             # שמירת המשתמש ב-session state
-            st.session_state['logged_in'] = True 
+            st.session_state['logged_in'] = True
             st.session_state['user'] = username
             st.rerun()
         else:
-            st.error("❌ שם משתמש או סיסמה שגויים")
+            st.error(LOGIN_INVALID_CREDENTIALS_ERROR)
             return False
 
     # הצגת הודעה אם עדיין לא הוזנו פרטים
     if not password:
-        st.info("ℹ️ נא להזין פרטי התחברות")
+        st.info(LOGIN_INFO_PROMPT)
 
     return False
 
@@ -61,7 +81,7 @@ def logout():
     פונקציית יציאה מהמערכת
     """
     st.session_state['logged_in'] = False
-    st.toast("✅ התנתקת בהצלחה!")
+    st.toast(LOGOUT_SUCCESS_TOAST)
     st.rerun()
 
 

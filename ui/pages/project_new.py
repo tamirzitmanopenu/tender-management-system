@@ -2,6 +2,7 @@ import streamlit as st
 from tools.api import post
 from settings.constants import (
     FIELD_LABELS,
+    ERROR_SEPARATOR,
     PROJECT_REQUIRED_FORM_KEYS,
     PROJECT_SKN_PROCESS_TEXT,
     PROJECT_CREATION_SUCCESS_TEXT,
@@ -14,6 +15,8 @@ from settings.constants import (
     PROJECT_OTHER_UPLOAD_SUCCESS_TEXT,
     PROJECT_OTHER_UPLOAD_FAILURE_TEXT,
     PROJECT_NEW_HEADER,
+    PROJECT_SKN_FILE_EXTENSION,
+    PROJECT_MISSING_FIELD_ERROR,
     SAVE_BTN,
     ICON_SAVE,
 )
@@ -34,19 +37,23 @@ def project_new():
             value = st.session_state.get(key)
             label = FIELD_LABELS.get(key, key)  # ברירת מחדל לשם הטכני אם אין תרגום
             if isinstance(value, str) and not value.strip():
-                errors.append(f"השדה '{label}' חסר")
+                errors.append(PROJECT_MISSING_FIELD_ERROR.format(label=label))
             elif value is None:
-                errors.append(f"השדה '{label}' חסר")
+                errors.append(PROJECT_MISSING_FIELD_ERROR.format(label=label))
 
         if errors:
-            st.session_state.error = " , ".join(errors)
+            st.session_state.error = ERROR_SEPARATOR.join(errors)
         else:
             st.session_state.error = ""
 
     with st.form("add_project"):
         name = st.text_input(get_label('new_project_name'), key='new_project_name')  # required
         deadline = st.date_input(get_label('new_deadline'), key='new_deadline')  # required
-        uploaded_skn = st.file_uploader(get_label('uploaded_skn'), type='skn', key='uploaded_skn')  # required
+        uploaded_skn = st.file_uploader(
+            get_label('uploaded_skn'),
+            type=PROJECT_SKN_FILE_EXTENSION,
+            key='uploaded_skn'
+        )  # required
         with st.expander(get_label('uploaded_other')):
             uploaded_other = st.file_uploader(get_label('uploaded_other'), key='uploaded_other')
             file_type = st.text_input(get_label('file_type'), key='file_type')

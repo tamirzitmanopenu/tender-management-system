@@ -6,7 +6,33 @@ import streamlit as st
 
 from tools.design import set_rtl
 from settings.constants import (
-    NAV_BUSINESSES, NAV_CATEGORIES, NAV_OFFERS, NAV_PROJECTS, PAGE_MANAGE, PAGE_NEW, PAGE_REPORT, WEBSITE_TITLE, ICON_OFFERS, ICON_REFRESH, WEBSITE_LOGO_PATH, ICON_MANAGE, ICON_NEW,ICON_OFFERS, ICON_REPORTS
+    ICON_MANAGE,
+    ICON_NEW,
+    ICON_OFFERS,
+    ICON_REFRESH,
+    ICON_REPORTS,
+    NAV_BUSINESSES,
+    NAV_CATEGORIES,
+    NAV_OFFERS,
+    NAV_PROJECTS,
+    PAGE_BUSINESS_MANAGE_PATH,
+    PAGE_BUSINESS_NEW_PATH,
+    PAGE_LAYOUT_CENTERED,
+    PAGE_MANAGE,
+    PAGE_OFFER_NEW_PATH,
+    PAGE_OFFER_REPORTS_PATH,
+    PAGE_PROJECT_MANAGE_PATH,
+    PAGE_PROJECT_NEW_PATH,
+    PAGE_CATEGORY_MANAGE_PATH,
+    PAGE_CATEGORY_NEW_PATH,
+    PAGE_NEW,
+    PAGE_REPORT,
+    SIDEBAR_LOGGED_IN_TEMPLATE,
+    SIDEBAR_LOGOUT_BUTTON_LABEL,
+    SIDEBAR_REFRESH_HELP,
+    UI_WIDTH_STRETCH,
+    WEBSITE_LOGO_PATH,
+    WEBSITE_TITLE,
 )
 from dotenv import load_dotenv
 
@@ -26,7 +52,7 @@ def init_session_state():
 
 st.set_page_config(
     page_icon=ICON_OFFERS,
-    layout="centered",
+    layout=PAGE_LAYOUT_CENTERED,
 )
 # Load .env from parent directory (project root)
 load_dotenv(dotenv_path=Path(__file__).parent.parent / '.env')
@@ -43,18 +69,15 @@ logo_path = Path(WEBSITE_LOGO_PATH)
 
 if logo_path.exists():
     st.sidebar.image(str(logo_path))
-if st.sidebar.button("", icon=ICON_REFRESH, help="רענון נתונים", width="stretch"):
+if st.sidebar.button("", icon=ICON_REFRESH, help=SIDEBAR_REFRESH_HELP, width=UI_WIDTH_STRETCH):
     st.cache_data.clear()
 st.sidebar.title(f"{env}")
 
 
-# הגדרת דפי ברירת מחדל לפני ההתחברות
-offer_page_path = "pages/offer_new.py"
-
 # הגדרת דפים בסיסיים שיוצגו לפני ההתחברות
 default_pages = {
     NAV_PROJECTS: [
-        st.Page("pages/project_mng.py", title=PAGE_MANAGE, icon=ICON_MANAGE),
+        st.Page(PAGE_PROJECT_MANAGE_PATH, title=PAGE_MANAGE, icon=ICON_MANAGE),
     ],
 }
 
@@ -67,8 +90,8 @@ if not st.session_state.logged_in:
         st.stop()
 
 with st.sidebar:
-    st.write(f"משתמש מחובר  {st.session_state['user']}")
-    if st.button(f"  👋 יציאה מהמערכת"):
+    st.write(SIDEBAR_LOGGED_IN_TEMPLATE.format(user=st.session_state['user']))
+    if st.button(SIDEBAR_LOGOUT_BUTTON_LABEL):
         logout()
 
 username = get_username()
@@ -81,26 +104,26 @@ pages = {}
 if user_permission == 'Admin':
     pages = {
         NAV_PROJECTS: [
-            st.Page("pages/project_mng.py", title=PAGE_MANAGE, icon=ICON_MANAGE),
-            st.Page("pages/project_new.py", title=PAGE_NEW, icon=ICON_NEW),
+            st.Page(PAGE_PROJECT_MANAGE_PATH, title=PAGE_MANAGE, icon=ICON_MANAGE),
+            st.Page(PAGE_PROJECT_NEW_PATH, title=PAGE_NEW, icon=ICON_NEW),
         ],
         NAV_BUSINESSES: [
-            st.Page("pages/business_new.py", title=PAGE_NEW, icon=ICON_NEW),
-            st.Page("pages/business_mng.py", title=PAGE_MANAGE, icon=ICON_MANAGE),
+            st.Page(PAGE_BUSINESS_NEW_PATH, title=PAGE_NEW, icon=ICON_NEW),
+            st.Page(PAGE_BUSINESS_MANAGE_PATH, title=PAGE_MANAGE, icon=ICON_MANAGE),
         ],
         NAV_CATEGORIES: [
-            st.Page("pages/category_new.py", title=PAGE_NEW, icon=ICON_NEW),
-            st.Page("pages/category_mng.py", title=PAGE_MANAGE, icon=ICON_MANAGE),
+            st.Page(PAGE_CATEGORY_NEW_PATH, title=PAGE_NEW, icon=ICON_NEW),
+            st.Page(PAGE_CATEGORY_MANAGE_PATH, title=PAGE_MANAGE, icon=ICON_MANAGE),
         ],
         NAV_OFFERS: [
-            st.Page(offer_page_path, title=PAGE_NEW, icon=ICON_NEW),
-            st.Page("pages/offer_reports.py", title=PAGE_REPORT, icon=ICON_REPORTS),
+            st.Page(PAGE_OFFER_NEW_PATH, title=PAGE_NEW, icon=ICON_NEW),
+            st.Page(PAGE_OFFER_REPORTS_PATH, title=PAGE_REPORT, icon=ICON_REPORTS),
         ],
     }
 else:
     pages = {
         NAV_OFFERS: [
-            st.Page(offer_page_path, title=PAGE_NEW, icon=ICON_NEW),
+            st.Page(PAGE_OFFER_NEW_PATH, title=PAGE_NEW, icon=ICON_NEW),
         ],
     }
 
