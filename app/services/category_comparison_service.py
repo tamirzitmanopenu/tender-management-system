@@ -30,7 +30,6 @@ class CategoryComparisonService:
         WHERE pt.project_id = ?
         AND pt.category_id = bc.category_id
         GROUP BY bc.business_category_id
-        ORDER BY c.category_name, total_category_price
         """
         
         rows = self.db.query_all(query, (project_id,))
