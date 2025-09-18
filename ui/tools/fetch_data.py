@@ -23,12 +23,14 @@ def fetch_projects(username: str = None) -> list:
 
 
 @st.cache_data(show_spinner=FETCH_CATEGORIES)
-def fetch_categories(project_id: str = None) -> dict:
-    url = "/categories"
+def fetch_categories(project_id: str = None, user: str = None) -> dict:
+    url = "/categories/by-user-and-project"
 
     params = {}
     if project_id is not None:
         params["project_id"] = project_id
+    if user is not None:
+        params["user"] = user
     # append query string if params exist
     if params:
         url += f"?{urlencode(params)}"

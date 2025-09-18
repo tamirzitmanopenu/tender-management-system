@@ -46,3 +46,33 @@ class CategoryService:
         else:
             query = "SELECT category_id, category_name FROM Category ORDER BY category_name"
         return self.db.query_all(query, params)
+
+    def list_categories_by_user_and_project(self, username: str, project_id: str):
+        """
+        שליפת קטגוריות לפי משתמש ופרויקט על בסיס BusinessCategorySelection
+        מחזיר רק את הקטגוריות שנבחרו עבור הפרויקט ושהמשתמש יכול לעבוד איתן
+        """
+        # בדיקת סוג המשתמש
+        user_query = "SELECT user_type FROM User WHERE username = ?"
+        user_result = self.db.query_one(user_query, (username,))
+        
+        if not user_result:
+            return []
+        
+        user_type = user_result.get('user_type')
+        
+        if user_type == 'supplier':
+            # עבור supplier - מחזיר קטגוריות שנבחרו לפרויקט ושהעסק שלו רשום עליהן
+            query = """
+            SELECT DISTINCT c.category_id, c.category_name 
+            FROM Category c
+            JOIN BusinessCategory bc ON c.category_id = bc.category_id
+            JOIN BusinessCategorySelection bcs ON bc.business_category_id = bcs.business_category_id
+            JOIN Supplier s ON bc.business_id = s.business_id
+            WHERE s.username = ? AND bcs.project_id = ?
+            ORDER BY c.category_name
+            """
+            return self.db.query_all(query, (username, project_id))
+        else:
+        
+            return self.list_categories(project_id)

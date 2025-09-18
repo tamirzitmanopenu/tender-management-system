@@ -35,7 +35,7 @@ def offer_new():
     project_name = st.selectbox(SELECT_PROJECT, [p['name'] for p in projects])
     project_id = project_map[project_name]['project_id']
 
-    categories = fetch_categories(project_id=project_id)
+    categories = fetch_categories(project_id=project_id, user=username)
     category_name = st.selectbox(OFFER_SELECT_CATEGORY, list(categories.keys()))
     category_id = categories.get(category_name)
     st.caption(f"מציג: {category_name}")
