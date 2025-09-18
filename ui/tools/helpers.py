@@ -6,17 +6,78 @@ from functools import wraps
 import pandas as pd
 import streamlit as st
 
-from settings.constants import FIELD_LABELS, SELECT_BUSINESSES, ICON_SEND
-from tools.fetch_data import fetch_business, fetch_categories, fetch_business_category, \
-    fetch_business_category_selection, fetch_user_details, fetch_permissions
+from settings.constants import (
+    AI_REPORT_CHEAPEST_SUPPLIER_LABEL,
+    AI_REPORT_CHEAPEST_SUPPLIER_TEMPLATE,
+    AI_REPORT_DOWNLOAD_FILENAME,
+    AI_REPORT_DOWNLOAD_LABEL,
+    AI_REPORT_DOWNLOAD_MIME,
+    AI_REPORT_ESTIMATED_PRICE_TEMPLATE,
+    AI_REPORT_KEY_REASONS_TITLE,
+    AI_REPORT_LOWEST_PRICE_LABEL,
+    AI_REPORT_NO_COMPARISON_INFO,
+    AI_REPORT_NO_PRICE_GAPS_INFO,
+    AI_REPORT_PRICE_ANALYSIS_EXPANDER_TITLE,
+    AI_REPORT_QUICK_SUMMARY_TITLE,
+    AI_REPORT_REASON_BULLET_TEMPLATE,
+    AI_REPORT_RECOMMENDATION_EXPANDER_TITLE,
+    AI_REPORT_RECOMMENDED_SUPPLIER_TEMPLATE,
+    AI_REPORT_SUPPLIERS_COLUMNS,
+    AI_REPORT_SUPPLIERS_COUNT_LABEL,
+    AI_REPORT_SUPPLIERS_EXPANDER_TITLE,
+    API_DATE_FORMAT,
+    AUTH_REQUIRED_ERROR,
+    AUTH_REQUIRED_INFO,
+    BUSINESS_ASSIGN_DIALOG_TITLE,
+    BUSINESS_ASSIGN_EMAIL_FAILURE_WARNING,
+    BUSINESS_ASSIGN_EMAIL_PARTIAL_WARNING,
+    BUSINESS_ASSIGN_EMAIL_SUBJECT,
+    BUSINESS_ASSIGN_EMAIL_SUCCESS,
+    BUSINESS_ASSIGN_NO_CATEGORIES_WARNING,
+    BUSINESS_ASSIGN_NO_SELECTIONS_WARNING,
+    BUSINESS_ASSIGN_SUBMIT_LABEL,
+    BUSINESS_ASSIGN_UNREGISTERED_HELP,
+    BUSINESS_ASSIGN_UNREGISTERED_LABEL,
+    BUTTON_TYPE_PRIMARY,
+    DATE_DISPLAY_FORMAT,
+    DATE_FALLBACK_EM_DASH,
+    FIELD_LABELS,
+    HIGHLIGHT_MIN_COLOR,
+    ICON_SEND,
+    PERMISSION_CURRENT_PERMISSION_TEMPLATE,
+    PERMISSION_ERROR_REQUIRED_TEMPLATE,
+    PERMISSION_ERROR_TITLE,
+    PERMISSION_ERROR_USERNAME_TEMPLATE,
+    PERMISSION_FETCH_ERROR,
+    PERMISSION_GO_HOME_BUTTON_LABEL,
+    PERMISSION_GUIDANCE_MESSAGE,
+    PERMISSION_LOGOUT_BUTTON_LABEL,
+    PILLS_SELECTION_MODE_MULTI,
+    PAGE_OFFER_NEW_PATH,
+    PROJECT_DEADLINE_NOT_SET,
+    PROJECT_DELETE_CONFIRM_LABEL,
+    PROJECT_DELETE_DIALOG_TITLE,
+    PROJECT_DELETE_FAILURE,
+    PROJECT_DELETE_REASON_LABEL,
+    PROJECT_DELETE_SUCCESS,
+    PROJECT_FILES_DIALOG_TITLE,
+    PROJECT_FILES_DOWNLOAD_TEMPLATE,
+    PROJECT_FILES_EMPTY_WARNING,
+    SELECT_BUSINESSES,
+    UI_WIDTH_STRETCH,
+    USER_IDENTIFICATION_ERROR,
+)
+from tools.fetch_data import (
+    fetch_business,
+    fetch_business_category,
+    fetch_business_category_selection,
+    fetch_categories,
+    fetch_permissions,
+    fetch_user_details,
+)
 from tools.add_data import register_business_category_selection, register_business_category
 from tools.auth import get_username, logout
 from tools.api import delete, get, post
-
-from settings.constants import NAV_PROJECTS
-
-from settings.constants import PAGE_NEW, PAGE_MANAGE, NAV_BUSINESSES, NAV_CATEGORIES, NAV_OFFERS, ICON_NEW, \
-    PAGE_REPORT, ICON_REPORTS, ICON_MANAGE
 
 
 
@@ -43,7 +104,7 @@ def get_user_permission_name(username: str) -> str:
         return None
 
     except Exception as e:
-        st.error(f"שגיאה בשליפת הרשאות המשתמש: {e}")
+        st.error(PERMISSION_FETCH_ERROR.format(error=e))
         return None
 
 
@@ -78,29 +139,38 @@ def show_permission_error(required_permissions: list, current_permission: str = 
     מציג הודעת שגיאה כשאין למשתמש הרשאה מתאימה
     """
     username = get_username()
-    current_perm_text = f" (הרשאה נוכחית: {current_permission})" if current_permission else ""
+    current_perm_text = (
+        PERMISSION_CURRENT_PERMISSION_TEMPLATE.format(permission=current_permission)
+        if current_permission
+        else ""
+    )
+    required_permissions_text = ", ".join(required_permissions)
 
     st.error(
-        f"🚫 **אין לך הרשאה לגשת לעמוד זה**\n\n"
-        f"משתמש: {username}{current_perm_text}\n\n"
-        f"הרשאות נדרשות: {', '.join(required_permissions)}"
+        "\n\n".join(
+            [
+                PERMISSION_ERROR_TITLE,
+                PERMISSION_ERROR_USERNAME_TEMPLATE.format(
+                    username=username,
+                    current_permission=current_perm_text,
+                ),
+                PERMISSION_ERROR_REQUIRED_TEMPLATE.format(
+                    permissions=required_permissions_text
+                ),
+            ]
+        )
     )
 
-    st.info(
-        "💡 **מה ניתן לעשות?**\n"
-        "- פנה למנהל המערכת לעדכון הרשאות\n"
-        "- חזור לעמוד הראשי\n"
-        "- התנתק והתחבר עם משתמש אחר"
-    )
+    st.info(PERMISSION_GUIDANCE_MESSAGE)
 
     # # כפתורים לפעולות נוספות
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("🏠 חזור לעמוד הראשי", use_container_width=True):
-            st.switch_page("pages/offer_new.py")
+        if st.button(PERMISSION_GO_HOME_BUTTON_LABEL, use_container_width=True):
+            st.switch_page(PAGE_OFFER_NEW_PATH)
 
     with col2:
-        if st.button("🚪 התנתק", use_container_width=True):
+        if st.button(PERMISSION_LOGOUT_BUTTON_LABEL, use_container_width=True):
             logout()
 
 
@@ -122,15 +192,15 @@ def require_permission(*required_permissions):
         def wrapper(*args, **kwargs):
             # בדיקה אם המשתמש מחובר
             if not st.session_state.get('logged_in', False):
-                st.error("🔒 **נדרשת התחברות למערכת**")
-                st.info("אנא התחבר כדי לגשת לתוכן זה")
+                st.error(AUTH_REQUIRED_ERROR)
+                st.info(AUTH_REQUIRED_INFO)
                 st.stop()
                 return None
 
             # בדיקת הרשאות
             username = get_username()
             if not username:
-                st.error("🚫 **שגיאה בזיהוי המשתמש**")
+                st.error(USER_IDENTIFICATION_ERROR)
                 st.stop()
                 return None
 
@@ -163,16 +233,16 @@ def admin_only(func):
 
 
 # -- Streamlit related helpers --
-@st.dialog("הקצאת עסקים לקטגוריות")
+@st.dialog(BUSINESS_ASSIGN_DIALOG_TITLE)
 def business_category_selection(project: dict):
     project_id = project.get("project_id")
     project_name = project.get("project_name")
-    project_deadline = project.get("project_deadline", "טרם נקבע")
+    project_deadline = project.get("project_deadline", PROJECT_DEADLINE_NOT_SET)
 
     all_business = fetch_business()
     categories = fetch_categories(project_id=project_id)
     if not categories:
-        st.warning("לא נמצאו קטגוריות בפרויקט זה")
+        st.warning(BUSINESS_ASSIGN_NO_CATEGORIES_WARNING)
         return
     with st.form("business_category_selection"):
         for category_name, category_id in categories.items():
@@ -195,23 +265,29 @@ def business_category_selection(project: dict):
                 options=in_category,
                 key=key,
                 format_func=lambda x: x["company_name"],
-                selection_mode="multi",
+                selection_mode=PILLS_SELECTION_MODE_MULTI,
             )
-            st.pills(
-                label="קבלני משנה שאינם רשומים בקטגוריה",
-                options=not_in_category,
-                key=f"{key}_non",
-                format_func=lambda x: x["company_name"],
-                help="אין אפשרות לבחור בקבלני משנה שאינם רשומים בקטגוריה - יש לרשום אותם בחלון ניהול קבלני משנה",
-                disabled=True
-            )
+            if not_in_category:
+                st.pills(
+                    label=BUSINESS_ASSIGN_UNREGISTERED_LABEL,
+                    options=not_in_category,
+                    key=f"{key}_non",
+                    format_func=lambda x: x["company_name"],
+                    help=BUSINESS_ASSIGN_UNREGISTERED_HELP,
+                    disabled=True
+                )
 
             if selected_businesses:
                 st.session_state.business_selections[key] = selected_businesses
 
             st.divider()
 
-        submitted = st.form_submit_button("הפצת מכרז", width="stretch", type="primary", icon=ICON_SEND)
+        submitted = st.form_submit_button(
+            BUSINESS_ASSIGN_SUBMIT_LABEL,
+            width=UI_WIDTH_STRETCH,
+            type=BUTTON_TYPE_PRIMARY,
+            icon=ICON_SEND,
+        )
 
     if submitted:
         business_category_items = []
@@ -247,11 +323,10 @@ def business_category_selection(project: dict):
                         })
 
         if not business_category_items:
-            st.warning("לא נמצאו בחירות חדשות")
+            st.warning(BUSINESS_ASSIGN_NO_SELECTIONS_WARNING)
             return
         try:
             bcs_resp = register_business_category_selection(project_id, business_category_items)
-            print(bcs_resp)
 
             # שליחת מיילים לאחר רישום מוצלח
             if bcs_resp and "created" in bcs_resp:
@@ -263,14 +338,17 @@ def business_category_selection(project: dict):
 
                 if selection_ids:
                     try:
-                        formatted_deadline = datetime.strptime(project_deadline, "%Y-%m-%d").strftime("%d/%m/%Y")
+                        formatted_deadline = datetime.strptime(
+                            project_deadline,
+                            API_DATE_FORMAT
+                        ).strftime(DATE_DISPLAY_FORMAT)
                     except ValueError:
                         print("תאריך הדדליין של הפרויקט אינו בפורמט תקין (YYYY-MM-DD).")
-                        formatted_deadline = "—"
+                        formatted_deadline = DATE_FALLBACK_EM_DASH
 
                     email_data = {
                         "items": selection_ids,
-                        "subject": "הזמנה להגשת הצעה למכרז",
+                        "subject": BUSINESS_ASSIGN_EMAIL_SUBJECT,
                         "template_id": "request_offer",
                         "template_variables": {
                             "project_name": project_name,
@@ -281,30 +359,30 @@ def business_category_selection(project: dict):
                     email_resp = post("/send_emails/bulk", json=email_data)
                     if email_resp.ok:
                         if email_resp.json().get("invalid_items"):
-                            st.warning("נרשמו בחירות אך חלק מההזמנות לא נשלחו")
-                        st.success("נשלחו הזמנות בהצלחה")
+                            st.warning(BUSINESS_ASSIGN_EMAIL_PARTIAL_WARNING)
+                        st.success(BUSINESS_ASSIGN_EMAIL_SUCCESS)
                     else:
-                        st.warning("נרשם בהצלחה אך שליחת המיילים נכשלה")
+                        st.warning(BUSINESS_ASSIGN_EMAIL_FAILURE_WARNING)
 
         except Exception as e:
             st.error(e)
             st.stop()
 
 
-@st.dialog("מחיקה")
+@st.dialog(PROJECT_DELETE_DIALOG_TITLE)
 def project_del(proj_id):
-    reason = st.text_input("כתוב את סיבת המחיקה")
+    reason = st.text_input(PROJECT_DELETE_REASON_LABEL)
     # Delete project
-    if st.button("מחק", type='primary') and proj_id:
+    if st.button(PROJECT_DELETE_CONFIRM_LABEL, type=BUTTON_TYPE_PRIMARY) and proj_id:
         del_resp = delete(f"/projects/{proj_id}")
         if del_resp.ok:
-            st.success("הפרויקט נמחק")
+            st.success(PROJECT_DELETE_SUCCESS)
         else:
-            st.error("נכשלה מחיקת הפרויקט")
+            st.error(PROJECT_DELETE_FAILURE)
         st.rerun()
 
 
-@st.dialog("קבצי פרויקט")
+@st.dialog(PROJECT_FILES_DIALOG_TITLE)
 def project_files(proj_id: str):
     # Get project files data
     proj_resp = get(f"/files/{proj_id}")
@@ -313,23 +391,28 @@ def project_files(proj_id: str):
     valid_files = [f for f in files if 'download_url' in f and 'file_type' in f]
 
     if not valid_files:
-        st.warning("אין קבצים להצגה")
+        st.warning(PROJECT_FILES_EMPTY_WARNING)
         return
 
     for file_data in valid_files:
-        st.markdown(f" הורד קובץ {file_data['file_type']} [כאן]({file_data['download_url']}) ")
+        st.markdown(
+            PROJECT_FILES_DOWNLOAD_TEMPLATE.format(
+                file_type=file_data['file_type'],
+                download_url=file_data['download_url'],
+            )
+        )
 
 
 def show_ai_recom(ai_recom: dict):
     # show_download_as_excel(ai_recom)
 
     # ----- השוואת ספקים -----
-    with st.expander("📊 השוואת ספקים", expanded=True):
+    with st.expander(AI_REPORT_SUPPLIERS_EXPANDER_TITLE, expanded=True):
         comp = ai_recom.get("השוואה", [])
         df_comp = as_df(comp)
 
         # סידור עמודות עיקריות אם קיימות
-        preferred_cols = ["ספק", "מחיר כולל", "דירוג", "תקציר חוות דעת", "חוזקות", "חולשות"]
+        preferred_cols = AI_REPORT_SUPPLIERS_COLUMNS
         cols = [c for c in preferred_cols if c in df_comp.columns] + [c for c in df_comp.columns if
                                                                       c not in preferred_cols]
         if not df_comp.empty:
@@ -339,43 +422,43 @@ def show_ai_recom(ai_recom: dict):
             styled = (
                 df_comp.style
                 .format({"מחיר כולל": fmt_money})
-                .highlight_min(subset=["מחיר כולל"], color="#d6f5d6")
+                .highlight_min(subset=["מחיר כולל"], color=HIGHLIGHT_MIN_COLOR)
             )
-            st.dataframe(styled, width="stretch")
+            st.dataframe(styled, width=UI_WIDTH_STRETCH)
 
             # מטריקות מהירות (אם יש לפחות שתי שורות)
             if {"מחיר כולל", "ספק"}.issubset(df_comp.columns):
                 cheapest_row = df_comp.loc[df_comp["מחיר כולל"].idxmin()]
                 cheapest_name = cheapest_row["ספק"]
                 cheapest_price = cheapest_row["מחיר כולל"]
-                st.caption("⚡ תמצית מהירה")
+                st.caption(AI_REPORT_QUICK_SUMMARY_TITLE)
                 c1, c2, c3 = st.columns(3)
                 with c1:
-                    st.metric("הספק הזול", cheapest_name)
+                    st.metric(AI_REPORT_CHEAPEST_SUPPLIER_LABEL, cheapest_name)
                 with c2:
-                    st.metric("מחיר זול ביותר", fmt_money(cheapest_price))
+                    st.metric(AI_REPORT_LOWEST_PRICE_LABEL, fmt_money(cheapest_price))
                 with c3:
-                    st.metric("מס׳ ספקים", len(df_comp))
+                    st.metric(AI_REPORT_SUPPLIERS_COUNT_LABEL, len(df_comp))
         else:
-            st.info("לא נמצאו נתוני השוואה להצגה.")
+            st.info(AI_REPORT_NO_COMPARISON_INFO)
 
     # ----- ניתוח מחירים -----
-    with st.expander("💰 ניתוח מחירים", expanded=True):
+    with st.expander(AI_REPORT_PRICE_ANALYSIS_EXPANDER_TITLE, expanded=True):
         price_analysis = ai_recom.get("ניתוח-מחירים", {})
-        cheapest = price_analysis.get("הזולה_ביותר", "—")
+        cheapest = price_analysis.get("הזולה_ביותר", DATE_FALLBACK_EM_DASH)
         gaps = price_analysis.get("פערים_באחוזים_לעומת_הזולה", [])
         df_gaps = as_df(gaps)
 
-        st.write(f"הזולה ביותר: **{cheapest}**")
+        st.write(AI_REPORT_CHEAPEST_SUPPLIER_TEMPLATE.format(supplier=cheapest))
         if not df_gaps.empty:
             if "פער_%" in df_gaps.columns:
                 df_gaps["פער_%"] = df_gaps["פער_%"].apply(fmt_pct)
-            st.dataframe(df_gaps, width="stretch")
+            st.dataframe(df_gaps, width=UI_WIDTH_STRETCH)
         else:
-            st.info("לא נמצאו פערי מחירים להצגה.")
+            st.info(AI_REPORT_NO_PRICE_GAPS_INFO)
 
     # ----- המלצה -----
-    with st.expander("⭐ המלצה", expanded=True):
+    with st.expander(AI_REPORT_RECOMMENDATION_EXPANDER_TITLE, expanded=True):
         reco = ai_recom.get("המלצה", {})
         df_reco = as_df(reco)
 
@@ -385,20 +468,25 @@ def show_ai_recom(ai_recom: dict):
         reasons = reco.get("נימוקים", [])
 
         if supplier:
-            st.subheader(f"✅ ספק מומלץ: **{supplier}**")
+            st.subheader(AI_REPORT_RECOMMENDED_SUPPLIER_TEMPLATE.format(supplier=supplier))
         if price is not None:
-            st.caption(f"מחיר משוער: {fmt_money(price)}")
+            st.caption(AI_REPORT_ESTIMATED_PRICE_TEMPLATE.format(price=fmt_money(price)))
 
         if reasons:
-            st.markdown("**נימוקים מרכזיים:**")
-            st.markdown("\n".join([f"- {r}" for r in reasons]))
+            st.markdown(AI_REPORT_KEY_REASONS_TITLE)
+            st.markdown(
+                "\n".join(
+                    AI_REPORT_REASON_BULLET_TEMPLATE.format(reason=r)
+                    for r in reasons
+                )
+            )
 
         # הצגה טבלאית (למי שרוצה לראות הכל כטבלה)
         if not df_reco.empty:
             # עיצוב המחיר אם קיים
             if "מחיר_ספק_מומלץ" in df_reco.columns:
                 df_reco["מחיר_ספק_מומלץ"] = df_reco["מחיר_ספק_מומלץ"].apply(fmt_money)
-            st.dataframe(df_reco, width="stretch")
+            st.dataframe(df_reco, width=UI_WIDTH_STRETCH)
 
 
 def show_download_as_excel(ai_recom: dict):
@@ -408,10 +496,10 @@ def show_download_as_excel(ai_recom: dict):
     excel_bytes = to_excel_download(df)
 
     st.download_button(
-        label="⬇️ הורדת ניתוח AI",
+        label=AI_REPORT_DOWNLOAD_LABEL,
         data=excel_bytes,
-        file_name="ai_recommendation.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        file_name=AI_REPORT_DOWNLOAD_FILENAME,
+        mime=AI_REPORT_DOWNLOAD_MIME
     )
 
 

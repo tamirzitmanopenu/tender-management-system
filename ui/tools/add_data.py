@@ -1,5 +1,12 @@
 import warnings
 
+from settings.constants import (
+    BUSINESS_ADD_EXISTS,
+    BUSINESS_ADD_FAILURE,
+    BUSINESS_CATEGORY_LINK_ERROR,
+    BUSINESS_SELECTION_SAVE_ERROR,
+)
+
 from tools.api import post
 
 
@@ -11,10 +18,10 @@ def register_business(company_name: str, business_id: str):
     if getattr(resp, "ok", False):
         return resp.json()
     elif resp.status_code == 409:
-        warnings.warn("העסק כבר קיים")
+        warnings.warn(BUSINESS_ADD_EXISTS)
         return None
     else:
-        raise Exception("נכשלה יצירת העסק")
+        raise Exception(BUSINESS_ADD_FAILURE)
 
 
 def register_business_category_selection(project_id: str, business_category_items: list[dict[str, str]]):
@@ -28,7 +35,7 @@ def register_business_category_selection(project_id: str, business_category_item
     if getattr(resp, "ok", False):
         return resp.json()
     else:
-        raise Exception("אירעה שגיאה בשמירת הבחירה")
+        raise Exception(BUSINESS_SELECTION_SAVE_ERROR)
 
 
 def register_business_category(category_id: str,
@@ -56,4 +63,4 @@ def register_business_category(category_id: str,
     if getattr(resp, "ok", False):
         return resp.json()
     else:
-        raise Exception("אירעה שגיאה ביצירת שיוך קטגוריה לעסק")
+        raise Exception(BUSINESS_CATEGORY_LINK_ERROR)

@@ -1,7 +1,7 @@
 import streamlit as st
 from tools.api import get, post
 from tools.fetch_data import fetch_categories
-from settings.constants import NAV_CATEGORIES
+from settings.constants import CATEGORY_LIST_EMPTY_INFO, NAV_CATEGORIES
 
 from tools.helpers import require_permission
 
@@ -15,7 +15,7 @@ def category_mng():
     if cats:
         st.dataframe(cats)
     else:
-        st.info("אין קטגוריות")
+        st.info(CATEGORY_LIST_EMPTY_INFO)
 
 
 category_mng()
