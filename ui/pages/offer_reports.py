@@ -1,15 +1,22 @@
 import streamlit as st
 
 from settings.constants import (
-    REPORTS_HEADER,
-    SELECT_PROJECT,
-    REPORTS_FETCH_BTN,
-    REPORTS_FETCH_ERROR,
-    REPORTS_SELECT_CATEGORY_AND_SUPPLIER,
+    REPORTS_AI_BTN_HELP,
+    REPORTS_AI_BTN_TEXT,
+    REPORTS_AI_ERROR,
+    REPORTS_AI_RECOM,
+    REPORTS_DETAILED_HEADER,
     REPORTS_DETAILS_BTN,
     REPORTS_DETAILS_ERROR,
-    SELECT_CATEGORY, REPORTS_DETAILED_HEADER, REPORTS_AI_RECOM, REPORTS_AI_BTN_HELP, REPORTS_AI_BTN_TEXT,
-    REPORTS_AI_ERROR,
+    REPORTS_FETCH_BTN,
+    REPORTS_FETCH_ERROR,
+    REPORTS_HEADER,
+    REPORTS_PRICE_Y_LABEL,
+    REPORTS_SELECT_CATEGORY_AND_SUPPLIER,
+    REPORTS_SUPPLIER_OPTION_TEMPLATE,
+    SELECT_CATEGORY,
+    SELECT_PROJECT,
+    UI_WIDTH_STRETCH,
 )
 from tools.fetch_data import fetch_comparison, fetch_details, fetch_projects, fetch_ai_recom, fetch_categories
 from tools.helpers import ensure_dict, show_ai_recom
@@ -48,8 +55,16 @@ def offer_reports():
         less_than_two_offers = len(filtered_data) < 2
 
         if not less_than_two_offers:
-            st.bar_chart(filtered_data, x='company_name', y='total_category_price', color="company_name", stack=False,
-                         y_label="מחיר", x_label="", horizontal=True)
+            st.bar_chart(
+                filtered_data,
+                x='company_name',
+                y='total_category_price',
+                color="company_name",
+                stack=False,
+                y_label=REPORTS_PRICE_Y_LABEL,
+                x_label="",
+                horizontal=True
+            )
 
         st.divider()
         with st.form(REPORTS_AI_RECOM):
@@ -60,7 +75,11 @@ def offer_reports():
 
             if less_than_two_offers:
                 st.info(REPORTS_AI_BTN_HELP)
-            submitted = st.form_submit_button(REPORTS_AI_BTN_TEXT, disabled=less_than_two_offers, width="stretch")
+            submitted = st.form_submit_button(
+                REPORTS_AI_BTN_TEXT,
+                disabled=less_than_two_offers,
+                width=UI_WIDTH_STRETCH
+            )
 
             if submitted:
 
@@ -75,7 +94,10 @@ def offer_reports():
         st.header(REPORTS_DETAILED_HEADER)
         # Build options from filtered data
         options = {
-            f"{row['company_name']} - {row['category_name']}": row["business_category_id"]
+            REPORTS_SUPPLIER_OPTION_TEMPLATE.format(
+                company_name=row['company_name'],
+                category_name=row['category_name']
+            ): row["business_category_id"]
             for row in filtered_data
         }
 

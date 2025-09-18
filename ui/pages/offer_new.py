@@ -2,13 +2,24 @@ import streamlit as st
 
 from tools.api import post
 from settings.constants import (
+    ICON_SEND,
+    OFFER_CATEGORY_DISPLAY_CAPTION,
     OFFER_HEADER,
-    SELECT_PROJECT,
+    OFFER_MIN_UNIT_PRICE,
+    OFFER_NO_BUSINESS_CATEGORY_ERROR,
+    OFFER_NO_PROJECTS_WARNING,
+    OFFER_NO_TASKS_INFO,
+    OFFER_QUANTITY_CAPTION_TEMPLATE,
     OFFER_SELECT_CATEGORY,
     OFFER_SUBMIT_BTN,
-    OFFER_SUBMIT_SUCCESS,
     OFFER_SUBMIT_ERROR,
-    ICON_SEND,
+    OFFER_SUBMIT_SUCCESS,
+    OFFER_TASK_TOTAL_TEMPLATE,
+    OFFER_TOTAL_SUM_TEMPLATE,
+    OFFER_UNIT_CAPTION_TEMPLATE,
+    OFFER_UNIT_PRICE_LABEL,
+    OFFER_UNIT_PRICE_STEP,
+    SELECT_PROJECT,
 )
 from tools.fetch_data import fetch_business_category, fetch_projects, fetch_categories, fetch_tasks, fetch_user_details
 from tools.auth import get_username
@@ -27,7 +38,7 @@ def offer_new():
         projects: list[dict] = fetch_projects()
 
     if not projects:
-        st.warning("No Projects Found")
+        st.warning(OFFER_NO_PROJECTS_WARNING)
         st.stop()
 
     project_map = {p['name']: p for p in projects}
@@ -38,11 +49,11 @@ def offer_new():
     categories = fetch_categories(project_id=project_id, user=username)
     category_name = st.selectbox(OFFER_SELECT_CATEGORY, list(categories.keys()))
     category_id = categories.get(category_name)
-    st.caption(f"מציג: {category_name}")
+    st.caption(OFFER_CATEGORY_DISPLAY_CAPTION.format(category_name=category_name))
 
     tasks = fetch_tasks(project_id, category_id) if project_id and category_id else []
     if not tasks:
-        st.info("לא נמצאו משימות בקטגוריה זו")
+        st.info(OFFER_NO_TASKS_INFO)
         st.stop()
     with st.container(border=True):
         # Function to update total price
@@ -63,14 +74,14 @@ def offer_new():
                     st.caption(f"{task['sub_category']}")
                     st.markdown(f"**{task['description']}**")
 
-                    st.caption(f"יחידת מידה: {task['unit']}")
-                    st.caption(f"כמות: {quantity}")
+                    st.caption(OFFER_UNIT_CAPTION_TEMPLATE.format(unit=task['unit']))
+                    st.caption(OFFER_QUANTITY_CAPTION_TEMPLATE.format(quantity=quantity))
 
                 with col2:
                     unit_price = st.number_input(
-                        "מחיר ליחידה",
-                        min_value=0.0,
-                        step=5.0,
+                        OFFER_UNIT_PRICE_LABEL,
+                        min_value=OFFER_MIN_UNIT_PRICE,
+                        step=OFFER_UNIT_PRICE_STEP,
                         value=current_price,
                         key=f"task_{task_id}",
                         on_change=update_price,
@@ -78,12 +89,12 @@ def offer_new():
                     )
                     st.session_state.prices[task_id] = unit_price
                     total_price = unit_price * quantity
-                    st.write(f"סה\"כ: ₪{total_price:,.2f}")
+                    st.write(OFFER_TASK_TOTAL_TEMPLATE.format(value=total_price))
                     total_sum += total_price
 
                 st.divider()
 
-        st.markdown(f"### סה\"כ הצעת מחיר: ₪{total_sum:,.2f}")
+        st.markdown(OFFER_TOTAL_SUM_TEMPLATE.format(value=total_sum))
 
         # Submit form
         submitted = st.button(OFFER_SUBMIT_BTN, icon=ICON_SEND)
@@ -97,7 +108,7 @@ def offer_new():
         business_id = user_details.get('business_id')
         business_categories: list[dict] = fetch_business_category(category_id=category_id, business_id=business_id)
         if not business_categories:
-            st.error("לא נמצאה קטגוריה עסקית עבור העסק שלך בקטגוריה זו. לא ניתן להגיש הצעה.")
+            st.error(OFFER_NO_BUSINESS_CATEGORY_ERROR)
             st.stop()
         business_category_id = business_categories[0].get('business_category_id') if business_categories else None
         data = {
