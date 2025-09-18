@@ -52,11 +52,11 @@ if not st.session_state.logged_in:
     # שימוש בפונקציה
     if not login():
         st.stop()
-else:
-    with st.sidebar:
-        st.write(f"משתמש מחובר  {st.session_state['user']}")
-        if st.button(f"  👋 יציאה מהמערכת"):
-            logout()
+
+with st.sidebar:
+    st.write(f"משתמש מחובר  {st.session_state['user']}")
+    if st.button(f"  👋 יציאה מהמערכת"):
+        logout()
 
 username = get_username()
 print(f"username is : {username}")

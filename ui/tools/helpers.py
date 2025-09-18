@@ -71,6 +71,7 @@ def get_user_permission_name(username: str) -> str:
     """
     מקבל שם משתמש ומחזיר את שם ההרשאה שלו מבסיס הנתונים
     """
+    print(f"checking permission for user: {username}")
     try:
         user_data = fetch_user_details(username)
         print(f"user_data is :{user_data}")

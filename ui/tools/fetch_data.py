@@ -125,7 +125,6 @@ def fetch_ai_recom(json_input: dict) -> dict:
         return json.loads(resp.json().get("ai_result"))
     return {}
 
-@st.cache_data()
 def fetch_user_details(username: str) -> dict:
     resp = get("/user/details", json={"username": username})
     if getattr(resp, "ok", False):
