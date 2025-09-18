@@ -15,8 +15,6 @@ def fetch_projects(username: str = None) -> list:
         resp = get('/user/accessible-projects', json={"username": username})
     else:
         resp = get("/projects")
-    print("-------------------------------")
-    print(resp.json())
     if getattr(resp, "ok", False):
         return resp.json().get("data", [])
     return []
@@ -34,7 +32,8 @@ def fetch_categories(project_id: str = None, user: str = None) -> dict:
     # append query string if params exist
     if params:
         url += f"?{urlencode(params)}"
-
+    else:
+        url = '/categories'
     resp = get(url)
     if getattr(resp, "ok", False):
         return {c["category_name"]: c["category_id"] for c in resp.json()}

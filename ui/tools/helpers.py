@@ -197,14 +197,15 @@ def business_category_selection(project: dict):
                 format_func=lambda x: x["company_name"],
                 selection_mode="multi",
             )
-            st.pills(
-                label="קבלני משנה שאינם רשומים בקטגוריה",
-                options=not_in_category,
-                key=f"{key}_non",
-                format_func=lambda x: x["company_name"],
-                help="אין אפשרות לבחור בקבלני משנה שאינם רשומים בקטגוריה - יש לרשום אותם בחלון ניהול קבלני משנה",
-                disabled=True
-            )
+            if not_in_category:
+                st.pills(
+                    label="קבלני משנה שאינם רשומים בקטגוריה",
+                    options=not_in_category,
+                    key=f"{key}_non",
+                    format_func=lambda x: x["company_name"],
+                    help="אין אפשרות לבחור בקבלני משנה שאינם רשומים בקטגוריה - יש לרשום אותם בחלון ניהול קבלני משנה",
+                    disabled=True
+                )
 
             if selected_businesses:
                 st.session_state.business_selections[key] = selected_businesses
@@ -251,7 +252,6 @@ def business_category_selection(project: dict):
             return
         try:
             bcs_resp = register_business_category_selection(project_id, business_category_items)
-            print(bcs_resp)
 
             # שליחת מיילים לאחר רישום מוצלח
             if bcs_resp and "created" in bcs_resp:
