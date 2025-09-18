@@ -1,6 +1,4 @@
 # .streamlit/config.toml
-[client]
-showSidebarNavigation = false
 
 [server]
 runOnSave = true

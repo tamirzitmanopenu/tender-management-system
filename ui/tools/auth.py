@@ -24,7 +24,7 @@ def login() -> bool:
     st.subheader("🔐 התחברות למערכת")
 
     # שדות קלט
-    username = st.text_input("שם משתמש:", placeholder="הזן את שם המשתמש שלך",key='user')
+    username = st.text_input("שם משתמש:", placeholder="הזן את שם המשתמש שלך")
     password = st.text_input("סיסמה:", type="password", placeholder="הזן את הסיסמה")
 
     # כפתור התחברות
@@ -41,7 +41,8 @@ def login() -> bool:
         if authenticate_user(username, password):
             st.toast(f"✅ ברוך הבא, {username}!")
             # שמירת המשתמש ב-session state
-            st.session_state['logged_in'] = True
+            st.session_state['logged_in'] = True 
+            st.session_state['user'] = username
             st.rerun()
         else:
             st.error("❌ שם משתמש או סיסמה שגויים")

@@ -128,7 +128,8 @@ def fetch_ai_recom(json_input: dict) -> dict:
 def fetch_user_details(username: str) -> dict:
     resp = get("/user/details", json={"username": username})
     if getattr(resp, "ok", False):
-        return resp.json().get("data", {})
+        data = resp.json().get("data", {})
+        return data
     return {}
 
 def fetch_permissions() -> list:

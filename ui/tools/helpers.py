@@ -19,53 +19,6 @@ from settings.constants import PAGE_NEW, PAGE_MANAGE, NAV_BUSINESSES, NAV_CATEGO
     PAGE_REPORT, ICON_REPORTS, ICON_MANAGE
 
 
-# -- Permission Management and Authorization --
-def define_sidebar(user_permission):
-    offer_page_path = "pages/offer_new.py"
-
-    with st.sidebar:
-        st.markdown("## Navigation")
-
-        if user_permission == 'Admin':
-            st.markdown(f"### {NAV_PROJECTS}")
-            st.page_link("pages/project_new.py", label=PAGE_NEW, icon=ICON_NEW)
-            st.page_link("pages/project_mng.py", label=PAGE_MANAGE, icon=ICON_MANAGE)
-
-            st.markdown(f"### {NAV_BUSINESSES}")
-            st.page_link("pages/business_new.py", label=PAGE_NEW, icon=ICON_NEW)
-            st.page_link("pages/business_mng.py", label=PAGE_MANAGE, icon=ICON_MANAGE)
-
-            st.markdown(f"### {NAV_CATEGORIES}")
-            st.page_link("pages/category_new.py", label=PAGE_NEW, icon=ICON_NEW)
-            st.page_link("pages/category_mng.py", label=PAGE_MANAGE, icon=ICON_MANAGE)
-
-            st.markdown(f"### {NAV_OFFERS}")
-            st.page_link(offer_page_path, label=PAGE_NEW, icon=ICON_NEW)
-            st.page_link("pages/offer_reports.py", label=PAGE_REPORT, icon=ICON_REPORTS)
-        else:
-            st.markdown(f"### {NAV_OFFERS}")
-            st.page_link(offer_page_path, label=PAGE_NEW, icon=ICON_NEW)
-        # pages = {
-        #     NAV_PROJECTS: [
-        #         st.Page("project_new.py", title=PAGE_NEW, icon=ICON_NEW),
-        #         st.Page("project_mng.py", title=PAGE_MANAGE, icon=ICON_MANAGE),
-        #     ],
-        #     NAV_BUSINESSES: [
-        #         st.Page("business_new.py", title=PAGE_NEW, icon=ICON_NEW),
-        #         st.Page("business_mng.py", title=PAGE_MANAGE, icon=ICON_MANAGE),
-        #     ],
-        #     NAV_CATEGORIES: [
-        #         st.Page("category_new.py", title=PAGE_NEW, icon=ICON_NEW),
-        #         st.Page("category_mng.py", title=PAGE_MANAGE, icon=ICON_MANAGE),
-        #     ],
-        #     NAV_OFFERS: [
-        #         st.Page("offer_new.py", title=PAGE_NEW, icon=ICON_NEW),
-        #         st.Page("offer_reports.py", title=PAGE_REPORT, icon=ICON_REPORTS),
-        #     ],
-        # }
-        # pg = st.navigation(pages)
-        # pg.run()
-
 
 def get_user_permission_name(username: str) -> str:
     """
