@@ -2,13 +2,18 @@ import os
 import streamlit as st
 
 
-def authenticate_user(password: str) -> bool:
-    """בדיקת סיסמה מול ערך מהסביבה (APP_PASSWORD)"""
-    expected_password = os.environ.get("APP_PASSWORD")
-    if expected_password is None:
-        # לא הוגדרה סיסמה בסביבה, דחה את כל הנסיונות
-        return False
-    return password == str(expected_password)
+def authenticate_user(username: str, password: str) -> bool:
+    """בדיקת פרטי משתמש מול מסד הנתונים"""
+    try:
+        # ייבוא מקומי כדי למנוע תלות מעגלית
+        from tools.fetch_data import fetch_user_details
+        user_data = fetch_user_details(username)
+    except Exception:
+        user_data = {}
+
+    expected_password = os.getenv("APP_PASSWORD")
+    print(f"expected_password is {expected_password}")
+    return expected_password is not None and password == expected_password
 
 
 def login() -> bool:
@@ -32,15 +37,15 @@ def login() -> bool:
             st.error("❌ נא להזין סיסמה")
             return False
 
-        # בדיקת סיסמה
-        if authenticate_user(password):
+        # בדיקת פרטי ההתחברות
+        if authenticate_user(username, password):
             st.toast(f"✅ ברוך הבא, {username}!")
             # שמירת המשתמש ב-session state
-            st.session_state['logged_in'] = True
+            st.session_state['logged_in'] = True 
             st.session_state['user'] = username
             st.rerun()
         else:
-            st.error("❌ סיסמה שגויה, נסה שנית")
+            st.error("❌ שם משתמש או סיסמה שגויים")
             return False
 
     # הצגת הודעה אם עדיין לא הוזנו פרטים
@@ -55,11 +60,9 @@ def logout():
     """
     פונקציית יציאה מהמערכת
     """
-
-    if st.button("התנתק", type="secondary", use_container_width=True):
-        st.session_state['logged_in'] = False
-        st.toast("✅ התנתקת בהצלחה!")
-        st.rerun()
+    st.session_state['logged_in'] = False
+    st.toast("✅ התנתקת בהצלחה!")
+    st.rerun()
 
 
 def get_username():

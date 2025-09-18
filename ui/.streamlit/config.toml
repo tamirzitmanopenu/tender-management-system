@@ -1,4 +1,5 @@
 # .streamlit/config.toml
+
 [server]
 runOnSave = true
 showEmailPrompt = false

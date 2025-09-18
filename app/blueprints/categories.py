@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, current_app
 
-from utilities import require_params, log_event
+from utilities import require_params, log_event, actor_from_headers
 
 bp = Blueprint("categories", __name__)
 
@@ -41,4 +41,24 @@ def get_categories():
         return err
     project_id = data.get("project_id", None)
     service = current_app.config["CategoryService"]
-    return jsonify(service.list_categories(project_id))
+    return jsonify(service.list_categories(project_id)), 200        
+
+
+# List categories by user and project רשימת קטגוריות לפי משתמש ופרויקט
+@bp.get("/categories/by-user-and-project")
+def get_categories_by_user_and_project():
+    data, err = require_params("project_id")
+    if err:
+        return err
+    
+    # אם לא סופק username, ניקח מה-header
+    username = data.get("username")
+    if not username:
+        username = actor_from_headers()
+        if not username:
+            return {"error": "username is required"}, 400
+    
+    project_id = data["project_id"]
+    service = current_app.config["CategoryService"]
+    categories = service.list_categories_by_user_and_project(username, project_id)
+    return jsonify(categories), 200

@@ -22,9 +22,9 @@ INSERT INTO Permission (permission_id, permission_name) VALUES
 
 INSERT INTO User (username, permission_id, full_name, email, password, phone, user_type) VALUES
 ('admin1', 1, 'אורי כהן', 'tamirzitman@gmail.com', 'pass123', '050-1234567', 'employee'),
-('emp1', 2, 'דנה לוי', 'tamirzitman@gmail.com', 'pass456', '050-7654321', 'employee'),
-('sup1', 4, 'שמחה לוי', 'tamirzitman@gmail.com', 'pass789', '03-5551234', 'supplier'),
-('sup2', 4, 'רועי שמעוני', 'tamirzitman@gmail.com', 'pass321', '03-5554321', 'supplier');
+('emp1', 1, 'דנה לוי', 'tamirzitman@gmail.com', 'pass456', '050-7654321', 'employee'),
+('sup1', 2, 'שמחה לוי', 'tamirzitman@gmail.com', 'pass789', '03-5551234', 'supplier'),
+('sup2', 2, 'רועי שמעוני', 'tamirzitman@gmail.com', 'pass321', '03-5554321', 'supplier');
 
 INSERT INTO Employee (username, employee_id, department) VALUES
 ('admin1', '301111111', 'ניהול'),
@@ -38,8 +38,8 @@ INSERT INTO Business (business_id, company_name) VALUES
 (5, 'חברת אינסטלציה מתקדמת');
 
 INSERT INTO User (username, permission_id, full_name, email, password, phone, user_type) VALUES
-('sup3', 4, 'אביב יוסף', 'tamirzitman@gmail.com', 'pass432', '03-5557890', 'supplier'),
-('sup4', 4, 'שרית כהן', 'yuvalsayag2@gmail.com', 'pass567', '03-5559999', 'supplier');
+('sup3', 2, 'אביב יוסף', 'tamirzitman@gmail.com', 'pass432', '03-5557890', 'supplier'),
+('sup4', 2, 'שרית כהן', 'yuvalsayag2@gmail.com', 'pass567', '03-5559999', 'supplier');
 
 INSERT INTO Supplier (username, business_id, supplier_id) VALUES
 ('sup1', 1, '510111111'),
@@ -94,6 +94,16 @@ INSERT INTO ProjectTask (project_task_id, category_id, project_id, description, 
 (7, 2, 2, 'החלפת תשתית חשמל', 'תשתיות', 'קומה', 4),
 (8, 4, 2, 'החלפת צנרת ביוב', 'צנרת', 'מטר', 150);
 
+INSERT INTO BusinessCategorySelection (selection_id, project_id, business_category_id) VALUES
+-- Project 1 (בניית בניין משרדים - תל אביב) - needs concrete, electrical, and plumbing work
+(1, 1, 1),   -- חברת בטון בע״מ - עבודות שלד
+(2, 1, 6),   -- חברת חשמליות - עבודות חשמל
+(3, 1, 20),  -- חברת אינסטלציה מתקדמת - עבודות אינסטלציה
+
+-- Project 2 (שיפוץ מבנה מגורים - חיפה) - needs structural, electrical, and painting work
+(4, 2, 9),   -- חברת צבעים וציפויים - עבודות שלד
+(5, 2, 14),  -- חברת חשמליות - עבודות חשמל (through business 4)
+(6, 2, 19);  -- חברת צבעים וציפויים - עבודות צבע
 
 """)
 
