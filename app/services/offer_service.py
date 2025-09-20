@@ -22,3 +22,31 @@ class OfferService:
             'price_offer': price_offer
         }
         return str(self.db.new_table_record(table='TaskOffer', record=record))
+
+    def get_offer_status_report(self, project_id: str):
+        """
+        מחזיר דוח סטטוס הצעות - כל העסקים שנבחרו לפרויקט ואם הגישו הצעה או לא
+        """
+       
+        query = f"""
+        SELECT 
+            c.category_name,
+            b.company_name,
+            CASE 
+            WHEN to_table.total_offer_id IS NOT NULL THEN 'הוגש'
+            ELSE 'טרם הוגש'
+            END as offer_status,
+            COALESCE(to_table.signed_date, '-') as submission_date,
+            COALESCE(to_table.supplier_username, '-') as submitted_by
+        FROM BusinessCategorySelection bcs
+        JOIN BusinessCategory bc ON bcs.business_category_id = bc.business_category_id
+        JOIN Business b ON bc.business_id = b.business_id
+        JOIN Category c ON bc.category_id = c.category_id
+        JOIN Project p ON bcs.project_id = p.project_id
+        LEFT JOIN TotalOffer to_table ON bcs.business_category_id = to_table.business_category_id 
+                        AND bcs.project_id = to_table.project_id
+        WHERE bcs.project_id = ?
+        ORDER BY bcs.project_id, b.company_name
+        """
+
+        return self.db.query_all(query, (project_id,))

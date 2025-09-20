@@ -13,7 +13,18 @@ def category_mng():
     # List categories
     cats = fetch_categories()
     if cats:
-        st.dataframe(cats)
+        # המרת dict לרשימה של tuples לטבלה
+        cats_list = [{"category_id": cat_id, "category_name": cat_name} 
+                     for cat_name, cat_id in cats.items()]
+        st.dataframe(
+            cats_list,
+            column_config={
+                "category_id": "מזהה קטגוריה",
+                "category_name": "שם הקטגוריה"
+            },
+            hide_index=True,
+            use_container_width=True
+        )
     else:
         st.info(CATEGORY_LIST_EMPTY_INFO)
 

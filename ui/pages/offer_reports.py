@@ -18,7 +18,7 @@ from settings.constants import (
     SELECT_PROJECT,
     UI_WIDTH_STRETCH,
 )
-from tools.fetch_data import fetch_comparison, fetch_details, fetch_projects, fetch_ai_recom, fetch_categories
+from tools.fetch_data import fetch_comparison, fetch_details, fetch_projects, fetch_ai_recom, fetch_categories, fetch_offers_status
 from tools.helpers import ensure_dict, show_ai_recom
 
 from tools.helpers import require_permission
@@ -48,10 +48,64 @@ def offer_reports():
         # Allow user to filter by category
         selected_category = st.selectbox(SELECT_CATEGORY, category_list)
 
+        # Display offer status for selected category
+        st.subheader(f"סטטוס הצעות עבור קטגוריה: {selected_category}")
+        
+        # Fetch offers status for this project
+        offers_status = fetch_offers_status(project_id)
+        
+        # Filter by selected category
+        category_offers = [
+            offer for offer in offers_status 
+            if offer["category_name"] == selected_category
+        ]
+        
+        if category_offers:
+            # Display offers status table
+            st.dataframe(
+                category_offers,
+                column_config={
+                    "company_name": "שם החברה",
+                    "category_name": "קטגוריה", 
+                    "offer_status": "סטטוס הצעה",
+                    "submission_date": "תאריך הגשה",
+                    "submitted_by": "הוגש על ידי"
+                },
+                hide_index=True,
+                use_container_width=True
+            )
+            
+            # Show summary statistics
+            total_companies = len(category_offers)
+            submitted_offers = len([o for o in category_offers if o["offer_status"] == "הוגש"])
+            pending_offers = total_companies - submitted_offers
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("סה\"כ חברות", total_companies)
+            with col2:
+                st.metric("הצעות שהוגשו", submitted_offers)
+            with col3:
+                st.metric("הצעות ממתינות", pending_offers)
+        else:
+            st.info(f"לא נמצאו נתונים עבור קטגוריה {selected_category}")
+
+        st.divider()
+
         # Filter data by selected category
         filtered_data = [row for row in comparison_data if row["category_name"] == selected_category]
         # Display filtered dataframe
-        st.dataframe(filtered_data)
+        st.dataframe(
+            filtered_data,
+            column_config={
+                "category_name": "קטגוריה",
+                "company_name": "שם החברה",
+                "total_category_price": "מחיר כולל",
+                "business_category_id": "מזהה עסק-קטגוריה"
+            },
+            hide_index=True,
+            use_container_width=True
+        )
         less_than_two_offers = len(filtered_data) < 2
 
         if not less_than_two_offers:
@@ -110,7 +164,20 @@ def offer_reports():
             if details is None:
                 st.error(REPORTS_DETAILS_ERROR)
             else:
-                st.dataframe(details)
+                st.dataframe(
+                    details,
+                    column_config={
+                        "project_task_id": "מזהה משימה",
+                        "description": "תיאור",
+                        "sub_category": "תת-קטגוריה",
+                        "unit": "יחידה",
+                        "quantity": "כמות",
+                        "price_offer": "מחיר הצעה",
+                        "total_price": "מחיר כולל"
+                    },
+                    hide_index=True,
+                    use_container_width=True
+                )
 
 
 offer_reports()

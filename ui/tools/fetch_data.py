@@ -142,3 +142,18 @@ def fetch_permissions() -> list:
         print(f"all permissions are: {resp.json()}")
         return resp.json()
     return []
+
+
+@st.cache_data
+def fetch_offers_status(project_id: str ) -> list:
+    """
+    מחזיר דוח סטטוס הצעות - כל העסקים שנבחרו לפרויקטים ואם הגישו הצעה או לא
+    """
+    url = "/offers/status"
+    
+    url += f"?project_id={project_id}"
+    
+    resp = get(url)
+    if getattr(resp, "ok", False):
+        return resp.json()
+    return []
