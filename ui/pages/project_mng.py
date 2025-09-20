@@ -4,18 +4,20 @@ from settings.constants import (
     BUTTON_TYPE_PRIMARY,
     ICON_ASSIGN,
     ICON_DELETE,
+    ICON_EDIT,
     ICON_FILES,
     NAV_PROJECTS,
     PROJECT_ASSIGN_BUSINESS_BTN,
     PROJECT_DEADLINE_NOT_SET,
     PROJECT_DELETE_BTN,
+    PROJECT_EDIT_BTN,
     PROJECT_FILES_BTN,
     PROJECTS_EMPTY_INFO,
     SELECT_PROJECT,
     UI_WIDTH_STRETCH,
 )
 from tools.fetch_data import fetch_projects
-from tools.helpers import project_del, project_files
+from tools.helpers import project_del, project_files, project_edit
 
 from tools.helpers import require_permission
 
@@ -31,11 +33,16 @@ def project_mng():
             project_name = st.selectbox(SELECT_PROJECT, [p['name'] for p in projects])
             project_id = project_map[project_name]['project_id']
             project_deadline = project_map[project_name].get('deadline_date', PROJECT_DEADLINE_NOT_SET)
-            c1, c2 = st.columns(2)
+            
+            # כפתורי פעולות בשלוש עמודות
+            c1, c2, c3 = st.columns(3)
             with c1:
                 if st.button(PROJECT_FILES_BTN, icon=ICON_FILES, width=UI_WIDTH_STRETCH):
                     project_files(project_id)
             with c2:
+                if st.button(PROJECT_EDIT_BTN, icon=ICON_EDIT, width=UI_WIDTH_STRETCH):
+                    project_edit(project_map[project_name])
+            with c3:
                 if st.button(PROJECT_DELETE_BTN, icon=ICON_DELETE, width=UI_WIDTH_STRETCH):
                     project_del(project_id)
             if st.button(

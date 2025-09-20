@@ -237,6 +237,7 @@ ICON_DELETE = ":material/delete:"
 ICON_ASSIGN = ":material/handshake:"
 ICON_SAVE = ":material/save:"
 ICON_SEND = ":material/send:"
+ICON_EDIT = ":material/edit:"
 
 # Fetch spinners
 FETCH_PROJECTS = "טוען פרויקטים"
@@ -255,6 +256,7 @@ SELECT_BUSINESSES = "בחר בקבלני משנה"
 SAVE_BTN = "שמור"
 PROJECT_FILES_BTN = "קבצי פרויקט"
 PROJECT_DELETE_BTN = "מחיקה"
+PROJECT_EDIT_BTN = "עריכה"
 PROJECT_ASSIGN_BUSINESS_BTN = "הקצאת קבלני משנה לפרויקט"
 BUSINESS_ASSIGN_SUBMIT_LABEL = "הפצת מכרז"
 
@@ -297,6 +299,17 @@ PROJECT_DELETE_FAILURE = "נכשלה מחיקת הפרויקט"
 PROJECT_FILES_DIALOG_TITLE = "קבצי פרויקט"
 PROJECT_FILES_EMPTY_WARNING = "אין קבצים להצגה"
 PROJECT_FILES_DOWNLOAD_TEMPLATE = " הורד קובץ {file_type} [כאן]({download_url}) "
+
+# Project edit dialog
+PROJECT_EDIT_DIALOG_TITLE = "עריכת פרויקט"
+PROJECT_EDIT_DEADLINE_LABEL = "עדכון תאריך יעד"
+PROJECT_EDIT_ADD_FILE_LABEL = "הוספת מסמך חדש"
+PROJECT_EDIT_FILE_TYPE_LABEL = "סוג קובץ"
+PROJECT_EDIT_SUBMIT_BTN = "עדכן פרויקט"
+PROJECT_EDIT_SUCCESS = "הפרויקט עודכן בהצלחה"
+PROJECT_EDIT_FAILURE = "נכשלה עריכת הפרויקט"
+PROJECT_EDIT_FILE_UPLOAD_SUCCESS = "הקובץ הועלה בהצלחה"
+PROJECT_EDIT_FILE_UPLOAD_FAILURE = "נכשלה העלאת הקובץ"
 
 # Date formats
 API_DATE_FORMAT = "%Y-%m-%d"

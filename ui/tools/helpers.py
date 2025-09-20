@@ -60,6 +60,15 @@ from settings.constants import (
     PROJECT_DELETE_FAILURE,
     PROJECT_DELETE_REASON_LABEL,
     PROJECT_DELETE_SUCCESS,
+    PROJECT_EDIT_ADD_FILE_LABEL,
+    PROJECT_EDIT_DEADLINE_LABEL,
+    PROJECT_EDIT_DIALOG_TITLE,
+    PROJECT_EDIT_FAILURE,
+    PROJECT_EDIT_FILE_TYPE_LABEL,
+    PROJECT_EDIT_FILE_UPLOAD_FAILURE,
+    PROJECT_EDIT_FILE_UPLOAD_SUCCESS,
+    PROJECT_EDIT_SUBMIT_BTN,
+    PROJECT_EDIT_SUCCESS,
     PROJECT_FILES_DIALOG_TITLE,
     PROJECT_FILES_DOWNLOAD_TEMPLATE,
     PROJECT_FILES_EMPTY_WARNING,
@@ -77,7 +86,7 @@ from tools.fetch_data import (
 )
 from tools.add_data import register_business_category_selection, register_business_category
 from tools.auth import get_username, logout
-from tools.api import delete, get, post
+from tools.api import delete, get, post, put
 
 
 
@@ -380,6 +389,86 @@ def project_del(proj_id):
         else:
             st.error(PROJECT_DELETE_FAILURE)
         st.rerun()
+
+
+@st.dialog(PROJECT_EDIT_DIALOG_TITLE)
+def project_edit(project: dict):
+    """עריכת פרויקט קיים - עדכון תאריך יעד והוספת מסמך חדש"""
+    project_id = project.get("project_id")
+    current_deadline = project.get("deadline_date", PROJECT_DEADLINE_NOT_SET)
+    
+    # הצגת תאריך נוכחי אם קיים
+    if current_deadline and current_deadline != PROJECT_DEADLINE_NOT_SET:
+        try:
+            current_date = datetime.strptime(current_deadline, API_DATE_FORMAT).date()
+        except ValueError:
+            current_date = None
+    else:
+        current_date = None
+    
+    with st.form("edit_project"):
+        # עדכון תאריך יעד
+        new_deadline = st.date_input(
+            PROJECT_EDIT_DEADLINE_LABEL, 
+            value=current_date,
+            key='edit_deadline'
+        )
+        
+        # הוספת קובץ חדש (אופציונלי)
+        uploaded_file = st.file_uploader(
+            PROJECT_EDIT_ADD_FILE_LABEL,
+            key='edit_uploaded_file'
+        )
+        
+        file_type = st.text_input(
+            PROJECT_EDIT_FILE_TYPE_LABEL,
+            key='edit_file_type'
+        )
+        
+        submitted = st.form_submit_button(
+            PROJECT_EDIT_SUBMIT_BTN,
+            type=BUTTON_TYPE_PRIMARY,
+            use_container_width=True
+        )
+    
+    if submitted:
+        success = True
+        
+        # עדכון תאריך יעד
+        if new_deadline:
+            try:
+                update_data = {"deadline_date": new_deadline.strftime(API_DATE_FORMAT)}
+                update_resp = put(f"/projects/{project_id}", json=update_data)
+                
+                if not update_resp.ok:
+                    st.error(PROJECT_EDIT_FAILURE)
+                    success = False
+                    
+            except Exception as e:
+                st.error(f"{PROJECT_EDIT_FAILURE}: {str(e)}")
+                success = False
+        
+        # העלאת קובץ חדש אם סופק
+        if uploaded_file and file_type:
+            try:
+                files = {"file": (uploaded_file.name, uploaded_file.getvalue())}
+                data = {"project_id": project_id, "file_type": file_type}
+                file_resp = post("/files", files=files, data=data)
+                
+                if file_resp.ok:
+                    st.success(PROJECT_EDIT_FILE_UPLOAD_SUCCESS)
+                else:
+                    st.error(PROJECT_EDIT_FILE_UPLOAD_FAILURE)
+                    success = False
+                    
+            except Exception as e:
+                st.error(f"{PROJECT_EDIT_FILE_UPLOAD_FAILURE}: {str(e)}")
+                success = False
+        
+        # הודעת הצלחה כללית
+        if success:
+            st.success(PROJECT_EDIT_SUCCESS)
+            st.rerun()
 
 
 @st.dialog(PROJECT_FILES_DIALOG_TITLE)

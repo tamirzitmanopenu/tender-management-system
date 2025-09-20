@@ -37,6 +37,20 @@ class ProjectService:
             filters={'project_id': project_id}
         )
 
+    def update_project(self, project_id: str, **kwargs) -> None:
+        """Update project fields with the provided values."""
+        # Add modified_at timestamp to track when the project was last updated
+        updates = {'modified_at': now_iso()}
+        
+        # Add any additional fields provided in kwargs
+        updates.update(kwargs)
+        
+        self.db.update_table_record(
+            table='Project',
+            updates=updates,
+            filters={'project_id': project_id}
+        )
+
     def get_projects_by_business_categories(self, business_categories):
         """
         Get projects that are accessible based on business categories.

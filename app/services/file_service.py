@@ -2,8 +2,8 @@ import os
 import uuid
 
 from werkzeug.datastructures import FileStorage
-from werkzeug.utils import secure_filename, send_from_directory
-from flask import current_app
+from werkzeug.utils import secure_filename
+from flask import current_app, send_from_directory
 
 from app.services.skn_converter import get_project_tasks
 from utilities import now_iso

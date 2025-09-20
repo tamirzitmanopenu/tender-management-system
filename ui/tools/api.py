@@ -36,6 +36,15 @@ def post(path: str, **kwargs):
         return None
 
 
+def put(path: str, **kwargs):
+    """Send a PUT request to the backend"""
+    try:
+        return requests.put(f"{base_url}{path}", **kwargs, headers={'X-User': get_username()})
+    except Exception as e:
+        print(e)
+        return None
+
+
 def delete(path: str, **kwargs):
     """Send a DELETE request to the backend"""
     try:
