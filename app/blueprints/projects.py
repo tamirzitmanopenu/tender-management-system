@@ -50,7 +50,25 @@ def delete_project(project_id: str):
 
     service.delete_project_record(project_id)
     return jsonify({'deleted': project_id})
+# Update project details עריכת פרטי פרויקט
+@bp.put("/projects/<project_id>")
+def update_project(project_id: str):
+    service = current_app.config["ProjectService"]
+    
+    # Check if project exists
+    row = service.get_project_record(project_id)
+    if not row:
+        return jsonify({"error": f"Could not find project record for project_id {project_id}"}), 400
+    
+    data, err = require_params("deadline_date")
+    if err:
+        return err
+    
+    # Update the project
+    service.update_project(project_id, deadline_date=data["deadline_date"])
 
+    log_event(f"Project {project_id} was updated with deadline_date: {data['deadline_date']}")
+    return jsonify({"message": "Project updated successfully", "project_id": project_id}), 200
 
 # Get tasks
 @bp.get("/projects/project_tasks")
