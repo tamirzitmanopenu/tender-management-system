@@ -437,7 +437,7 @@ def project_edit(project: dict):
         # עדכון תאריך יעד
         if new_deadline:
             try:
-                update_data = {"deadline_date": str(new_deadline)}
+                update_data = {"deadline_date": new_deadline.strftime(API_DATE_FORMAT)}
                 update_resp = put(f"/projects/{project_id}", json=update_data)
                 
                 if not update_resp.ok:
