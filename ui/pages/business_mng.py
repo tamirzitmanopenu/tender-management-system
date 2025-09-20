@@ -11,7 +11,15 @@ def business_mng():
 
     suppliers = fetch_business()
     if suppliers:
-        st.dataframe(suppliers)
+        st.dataframe(
+            suppliers,
+            column_config={
+                "business_id": "מזהה עסק",
+                "company_name": "שם החברה"
+            },
+            hide_index=True,
+            use_container_width=True
+        )
     else:
         st.info(BUSINESS_LIST_EMPTY_INFO)
 

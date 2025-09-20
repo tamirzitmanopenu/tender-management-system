@@ -73,3 +73,27 @@ def add_offer():
     except Exception as e:
         log_event(f"[TaskOffer][ERROR] batch create failed: {e}", level="ERROR")
         return jsonify({"error": "Failed to create task offers"}), 500
+
+
+@bp.get("/offers/status")
+def get_offers_status():
+    """
+    מחזיר דוח סטטוס הצעות - כל העסקים שנבחרו לפרויקטים ואם הגישו הצעה או לא
+    אפשר לסנן לפי project_id עם query parameter
+    """
+    service = current_app.config["OfferService"]
+    data, err = require_params("project_id")
+    if err:
+        return err
+
+    project_id = str(data["project_id"])
+
+    # אפשרות לסנן לפי פרויקט ספציפי
+    try:
+        results = service.get_offer_status_report(project_id)
+        log_event(f"[OfferStatus] report generated. project_id={project_id}, results_count={len(results)}")
+        return jsonify(results), 200
+        
+    except Exception as e:
+        log_event(f"[OfferStatus][ERROR] failed to generate report: {e}", level="ERROR")
+        return jsonify({"error": "Failed to generate offers status report"}), 500   

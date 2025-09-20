@@ -513,7 +513,7 @@ def show_ai_recom(ai_recom: dict):
                 .format({"מחיר כולל": fmt_money})
                 .highlight_min(subset=["מחיר כולל"], color=HIGHLIGHT_MIN_COLOR)
             )
-            st.dataframe(styled, width=UI_WIDTH_STRETCH)
+            st.dataframe(styled)
 
             # מטריקות מהירות (אם יש לפחות שתי שורות)
             if {"מחיר כולל", "ספק"}.issubset(df_comp.columns):
@@ -542,7 +542,7 @@ def show_ai_recom(ai_recom: dict):
         if not df_gaps.empty:
             if "פער_%" in df_gaps.columns:
                 df_gaps["פער_%"] = df_gaps["פער_%"].apply(fmt_pct)
-            st.dataframe(df_gaps, width=UI_WIDTH_STRETCH)
+            st.dataframe(df_gaps)
         else:
             st.info(AI_REPORT_NO_PRICE_GAPS_INFO)
 
@@ -575,7 +575,7 @@ def show_ai_recom(ai_recom: dict):
             # עיצוב המחיר אם קיים
             if "מחיר_ספק_מומלץ" in df_reco.columns:
                 df_reco["מחיר_ספק_מומלץ"] = df_reco["מחיר_ספק_מומלץ"].apply(fmt_money)
-            st.dataframe(df_reco, width=UI_WIDTH_STRETCH)
+            st.dataframe(df_reco)
 
 
 def show_download_as_excel(ai_recom: dict):
